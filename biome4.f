@@ -542,7 +542,7 @@ c     Under certain conditions grass will be the dominant or co-dominant PFT:
       end if
 
       if (wdom.eq.2) then
-       if (woodylai.lt.2.0) then
+       if (woodylai.lt.2.6) then
         optpft=grasspft
        else if (grasspft.eq.9.and.woodylai.lt.3.6) then
         optpft=14
@@ -556,7 +556,7 @@ c     Under certain conditions grass will be the dominant or co-dominant PFT:
       end if
 
       if (wdom.eq.3) then
-       if (optnpp(wdom).lt.140.0) then
+       if (optnpp(wdom).lt.150.0) then
         optpft=grasspft
        else if (woodylai.lt.1.0) then
         optpft=grasspft
@@ -568,7 +568,7 @@ c     Under certain conditions grass will be the dominant or co-dominant PFT:
       end if
 
       if (wdom.eq.4) then
-       if (woodylai.lt.2.0) then
+       if (woodylai.lt.2.6) then
         optpft=grasspft
        else if (firedays.gt.210.and.nppdif.lt.0.0) then
         if (.not.flop.and.subpft.ne.0) then
@@ -605,7 +605,7 @@ c        subpft=5
 c        flop=.true.
 c        goto 1
 c       end if
-       else if (optnpp(wdom).lt.140.0) then
+       else if (optnpp(wdom).lt.150.0) then
         optpft=grasspft
        else if (woodylai.lt.1.2) then
         optpft=14
@@ -618,7 +618,7 @@ c       end if
 c     add npp limits on other PFT's (tropical mountain story)
 
       if (wdom.eq.6) then
-       if (optnpp(wdom).lt.140.0) then
+       if (optnpp(wdom).lt.150.0) then
         optpft=grasspft
        else if (firedays.gt.90) then
         if (.not.flop.and.subpft.ne.0) then
@@ -633,7 +633,9 @@ c     add npp limits on other PFT's (tropical mountain story)
       end if
 
       if (wdom.eq.7) then
-       if (optnpp(wdom).lt.120.0) then
+       if (optnpp(wdom).lt.130.0) then
+        optpft=grasspft
+       else if (gdd5.gt.1200.0.and.woodylai.lt.2.6) then
         optpft=grasspft
 c       else if (optnpp(wdom).lt.120.0) then
 c        optpft=14
@@ -673,7 +675,7 @@ c        optpft=14
       end if
 
       if (optpft.eq.11) then
-       if (wetness(optpft).le.25.0.and.(present(12))) then
+       if (wetness(optpft).le.35.0.and.(present(12))) then
         optpft=12
        end if
       end if
@@ -1090,7 +1092,7 @@ c-----boreal biomes------------------
        else if (subpft.eq.5) then  !.or.subpft.eq.6
         biome=9
         goto 200
-       else if (gdd5.gt.900.0.and.tcm.gt.-19.0) then
+       else if (gdd5.gt.900.0.and.tcm.gt.-19.0 .and. present(6)) then
         biome=9
         goto 200
        else
@@ -2801,7 +2803,7 @@ c     Define and initialize the limits of the climatic indices
      +-15.0,-99.9, -99.9, -8.0,1200.0,-99.9, -99.9,-99.9, -99.9,-99.9,   !4
      + -2.0,-99.9, -99.9, 10.0, 900.0,-99.9, -99.9,-99.9,  10.0,-99.9,   !5
      +-32.5, -2.0, -99.9,-99.9, -99.9,-99.9, -99.9,-99.9, -99.9, 21.0,   !6
-     +-99.9,  5.0, -99.9,-10.0, -99.9,-99.9, -99.9,-99.9, -99.9, 21.0,   !7
+     +-99.9,  5.0, -99.9,-10.0, -99.9,-99.9, -99.9,-99.9, -99.9, 26.0,   !7
      +-99.9,-99.9, -99.9,  0.0, 550.0,-99.9, -99.9,-99.9, -99.9,-99.9,   !8
      +-99.9,-99.9,  -3.0,-99.9, -99.9,-99.9, -99.9,-99.9,  10.0,-99.9,   !9
      +-99.9,-99.9, -45.0,-99.9, 500.0,-99.9, -99.9,-99.9,  10.0,-99.9,   !10
@@ -3346,7 +3348,7 @@ c     scenarios of phi.
 
 c---------------------------------------------------------------------------
 c
-c     This subroutine models heterotrophic respiration of litter and soíl
+c     This subroutine models heterotrophic respiration of litter and soÃ­l
 c     organic carbon in both a fast and a slow pool.  It assumes equilibrium
 c     and so decays all of a given year's NPP.  The 13C composition of respired
 c     CO2 is also modelled.  Models are based on the work of Foley, Lloyd and
