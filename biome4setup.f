@@ -1,32 +1,32 @@
 c---------------------------------------------------------------------------
-c    The BIOME4-system:	biome4setup.f	1.0b1	22.10.99
+c    The BIOME4-system: biome4setup.f   1.0b1   22.10.99
 c
-c	Copyright (c) 1999 by Jed O. Kaplan
-c     
-c	See COPYING file for copying and redistribution conditions.
+c       Copyright (c) 1999 by Jed O. Kaplan
 c
-c	This program is free software; you can redistribute it and/or modify
-c	it under the terms of the GNU General Public License as published by
-c	the Free Software Foundation; version 2 of the License.
+c       See COPYING file for copying and redistribution conditions.
 c
-c	This program is distributed in the hope that it will be useful,
-c	but WITHOUT ANY WARRANTY; without even the implied warranty of
-c	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-c	GNU General Public License for more details.
+c       This program is free software; you can redistribute it and/or modify
+c       it under the terms of the GNU General Public License as published by
+c       the Free Software Foundation; version 2 of the License.
 c
-c	Contact info: jkaplan@bgc-jena.mpg.de
+c       This program is distributed in the hope that it will be useful,
+c       but WITHOUT ANY WARRANTY; without even the implied warranty of
+c       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+c       GNU General Public License for more details.
+c
+c       Contact info: jkaplan@bgc-jena.mpg.de
 c---------------------------------------------------------------------------
 c
-c			B I O M E 4 S E T U P . F
+c                     B I O M E 4 S E T U P . F
 c
 c---------------------------------------------------------------------------
 c
 c      This subroutine is the performs the setup to initialize a run of the
-c      BIOME4 model.  The subroutine opens the netCDF input file and generates 
+c      BIOME4 model.  The subroutine opens the netCDF input file and generates
 c      a netCDF output file with the appropriate number of dimensions.
-c      It also initializes the output variables selected by the user in the 
-c      biome4options file.  Biome4setup and the biome4driver subroutines expect 
-c      the input datafile to be of a certain standard; the list of dimensions 
+c      It also initializes the output variables selected by the user in the
+c      biome4options file.  Biome4setup and the biome4driver subroutines expect
+c      the input datafile to be of a certain standard; the list of dimensions
 c      and variables is below.
 c
 c-------------------------------------
@@ -34,74 +34,74 @@ c     Standard for netCDF input data files (generated with ncdump):
 c
 c netcdf <<filename>> {
 c dimensions:
-c	lon = <<arbitrary size>> ;
-c	lat = <<arbitrary size>> ;
-c	time = 12 ;
-c	soil_layer = 2 ;
+c       lon = <<arbitrary size>> ;
+c       lat = <<arbitrary size>> ;
+c       time = 12 ;
+c       soil_layer = 2 ;
 c variables:
-c	float lon(lon) ;
-c		lon:long_name = "longitude" ;
-c		lon:units = "degrees_east" ;
-c		lon:missing_value = -9999.f ;
-c	float lat(lat) ;
-c		lat:long_name = "latitude" ;
-c		lat:units = "degrees_north" ;
-c		lat:missing_value = -9999.f ;
-c	int time(time) ;
-c		time:long_name = "time" ;
-c		time:units = "month" ;
-c		time:missing_value = -9999 ;
-c	int soil_layer(soil_layer) ;
-c		soil_layer:long_name = "soil layer, 0-30cm, 30cm-bottom" ;
-c		soil_layer:units = "layer" ;
-c		soil_layer:missing_value = -9999 ;
-c	short temp(time, lat, lon) ;
-c		temp:long_name = "monthly mean temperature" ;
-c		temp:units = "degC" ;
-c		temp:missing_value = -9999s ;
-c	short prec(time, lat, lon) ;
-c		prec:long_name = "monthly total precipitation" ;
-c		prec:units = "mm" ;
-c		prec:missing_value = -9999s ;
-c	short sun(time, lat, lon) ;
-c		sun:long_name = "mean monthly percent of possible sunshine" ;
-c		sun:units = "percent" ;
-c		sun:missing_value = -9999s ;
-c	float whc(soil_layer, lat, lon) ;
-c		whc:long_name = "soil water holding capacity" ;
-c		whc:units = "mm/m" ;
-c		whc:missing_value = -9999.f ;
-c	float perc(soil_layer, lat, lon) ;
-c		perc:long_name = "soil water percolation index" ;
-c		perc:units = "mm/hr" ;
-c		perc:missing_value = -9999.f ;
-c	short tmin(lat, lon) ;
-c		tmin:long_name = "annual absolute mimimum temperature" ;
-c		tmin:units = "degC" ;
-c		tmin:missing_value = -9999s ;
+c       float lon(lon) ;
+c              lon:long_name = "longitude" ;
+c              lon:units = "degrees_east" ;
+c              lon:missing_value = -9999.f ;
+c       float lat(lat) ;
+c              lat:long_name = "latitude" ;
+c              lat:units = "degrees_north" ;
+c              lat:missing_value = -9999.f ;
+c       int time(time) ;
+c              time:long_name = "time" ;
+c              time:units = "month" ;
+c              time:missing_value = -9999 ;
+c       int soil_layer(soil_layer) ;
+c              soil_layer:long_name = "soil layer, 0-30cm, 30cm-bottom" ;
+c              soil_layer:units = "layer" ;
+c              soil_layer:missing_value = -9999 ;
+c       short temp(time, lat, lon) ;
+c              temp:long_name = "monthly mean temperature" ;
+c              temp:units = "degC" ;
+c              temp:missing_value = -9999s ;
+c       short prec(time, lat, lon) ;
+c              prec:long_name = "monthly total precipitation" ;
+c              prec:units = "mm" ;
+c              prec:missing_value = -9999s ;
+c       short sun(time, lat, lon) ;
+c              sun:long_name = "mean monthly percent of possible sunshine" ;
+c              sun:units = "percent" ;
+c              sun:missing_value = -9999s ;
+c       float whc(soil_layer, lat, lon) ;
+c              whc:long_name = "soil water holding capacity" ;
+c              whc:units = "mm/m" ;
+c              whc:missing_value = -9999.f ;
+c       float perc(soil_layer, lat, lon) ;
+c              perc:long_name = "soil water percolation index" ;
+c              perc:units = "mm/hr" ;
+c              perc:missing_value = -9999.f ;
+c       short tmin(lat, lon) ;
+c              tmin:long_name = "annual absolute mimimum temperature" ;
+c              tmin:units = "degC" ;
+c              tmin:missing_value = -9999s ;
 c
 c // global attributes:
-c		:title = "<<dataset title>>" ;
+c              :title = "<<dataset title>>" ;
 c }
 c
 c-------------------------------------
 c
-c      Author:	Jed O. Kaplan
-c      Date:	22 October 1999
-c      Version:	v1.0b1
+c      Author:       Jed O. Kaplan
+c      Date:       22 October 1999
+c      Version:       v1.0b1
 c      Revised: 18.11.99 by JOK
-c	Moved opening input data file and the box calculation to the
+c       Moved opening input data file and the box calculation to the
 c       beginning of the program so that the output file is dynamically
-c	sized to the run size.
-c	Also changed the dimensions in the outfile to the calculated size.
+c       sized to the run size.
+c       Also changed the dimensions in the outfile to the calculated size.
 c      Revised: 10.01.00 by JOK
-c	Added two new global attributes to the output file: CO2 concentration
-c	and resolution on the grid.  The grid resolution is set automatically
-c	at the moment but should be automatic.
+c       Added two new global attributes to the output file: CO2 concentration
+c       and resolution on the grid.  The grid resolution is set automatically
+c       at the moment but should be automatic.
 c      Revised: 12.01.00 by JOK
-c	Added path and filename of the driving data input file.
-c	Corrected output file creation so that output is placed in directory
-c	specified in the options file and not simply in the current directory.
+c       Added path and filename of the driving data input file.
+c       Corrected output file creation so that output is placed in directory
+c       specified in the options file and not simply in the current directory.
 c
 c------------------------------------------------------------------------
 c     Program code begins here:
@@ -140,23 +140,23 @@ c     variables
       integer typenum(6),num
       integer varid,ice
       parameter (ice=28)
-      
+
       integer limits(4)
-      
+
       real lonlatbox(4)
       real var_missing
       real globalparms(4)
       real p,co2
       real gridres
       real water
-      
+
       parameter (p=1E5)
 
 c-------------------------------------
 
       data typenum
      > /nf_byte,nf_char,nf_short,nf_int,nf_float,nf_double/
-	   
+
 c-------------------------------------
 c     Read in the user run options
 
@@ -165,9 +165,9 @@ c     Read in the user run options
 
       read(99,*)inputpath
       read(99,*)outputpath
-            
+
       read(99,*) co2
-      
+
       read(99,*) globalparms(4) !diagnostic mode option
 
       i=0
@@ -177,12 +177,12 @@ c     Read in the user run options
        goto 15
       else
        continue
-      end if		
-      
+      end if
+
       noutvars=i-1
-      
+
       read(99,*) iopt
-      
+
       if(iopt.eq.2) then
        lonlatbox(1)=-180.0
        lonlatbox(2)=180.0
@@ -234,7 +234,7 @@ c      find the x and y values for the min and max lat and lon
 
       status=nf_inq_dimlen(inputid,2,latsize)
       if (status.ne.nf_noerr) call handle_err(status)
-      
+
       call box(inputid,lonsize,latsize,lonlatbox,limits)
 
 c      print*,lonlatbox
@@ -253,7 +253,7 @@ c     Create the output file
       if (status.ne.nf_noerr) call handle_err(status)
 
       call timestring(timestr)
-      
+
       output_title=
      >'BIOME4 output file, generated '//timestr(1:length(timestr))
 
@@ -286,7 +286,7 @@ c     define lon, lat and time dimensions and variables
       dim_longname='longitude'
       dimtype=nf_float
       dimunits='degrees_east'
-      
+
       call definedim
      >(outputid,dimname,dimsize,dim_longname,dimtype,dimunits)
 
@@ -298,7 +298,7 @@ c     define lon, lat and time dimensions and variables
 
       call definedim
      >(outputid,dimname,dimsize,dim_longname,dimtype,dimunits)
-      
+
       dimname='time'
       dimsize=12
       dim_longname='time'
@@ -317,12 +317,12 @@ c     define lon, lat and time dimensions and variables
       call definedim
      >(outputid,dimname,dimsize,dim_longname,dimtype,dimunits)
 
-c-----------------      
+c-----------------
 c     define the variables to be output
 c     a library of common outputs is stored in the file biome4outvars
 
       do pos=1,noutvars
-      
+
        varname=varnames(list(pos))
        vardim=vardims(list(pos))
 
@@ -335,10 +335,10 @@ c     a library of common outputs is stored in the file biome4outvars
        var_unit=var_units(list(pos))
 
        var_missing=-9999.
-      
+
        call makevar(outputid,varname,vartype,vardim,dimid,
      >              var_longname,var_unit,var_missing)
-     
+
       end do
 
 c-------------------------------------
@@ -376,34 +376,34 @@ c     Find the flag for water
       globalparms(3)=water
 
       print*,'setup complete'
-       
+
 c-------------------
 c      the program is set up. return
 
        return
-       
+
        end
 
 c---------------------------------------------------------------------
       subroutine definedim
      >(outputid,dimname,dimsize,dim_longname,dimtype,dimunits)
-      
+
       implicit none
       include 'netcdf.inc'
-      
+
       integer status
-      
+
       character*20 dimunits,dimname
       character*60 dim_longname
-      
+
       integer outputid,dimsize,dimid
       integer dimtype,dimids(4)
 
       status=nf_def_dim(outputid,dimname,dimsize,dimid)
       if (status.ne.nf_noerr) call handle_err(status)
-      
+
       dimids(1)=dimid
-      
+
       call makevar(outputid,dimname,dimtype,1,dimids,
      >             dim_longname,dimunits,-9999.)
 
@@ -502,7 +502,7 @@ c-------------------------------------
 
       subroutine box(inputid,lonsize,latsize,lonlatbox,limits)
 c     finds the x,y index limits of the selected lat,lon box
-      
+
       implicit none
       include 'netcdf.inc'
 
@@ -532,7 +532,7 @@ c----------------------
        if (lon(i).le.milo) minx=i
        if (lon(i).le.malo) maxx=i
       end do
-       
+
       maxy=1
       do i=1,latsize
        if (lat(i).ge.mila) miny=i

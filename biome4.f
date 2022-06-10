@@ -1,33 +1,33 @@
 c---------------------------------------------------------------------------
-c    The BIOME4-system:	biome4.f	4.2b2	02.11.99
+c    The BIOME4-system: biome4.f       4.2b2       02.11.99
 c
-c	Copyright (c) 1999 by Jed O. Kaplan
-c     
-c	See COPYING file for copying and redistribution conditions.
+c       Copyright (c) 1999 by Jed O. Kaplan
 c
-c	This program is free software; you can redistribute it and/or modify
-c	it under the terms of the GNU General Public License as published by
-c	the Free Software Foundation; version 2 of the License.
+c       See COPYING file for copying and redistribution conditions.
 c
-c	This program is distributed in the hope that it will be useful,
-c	but WITHOUT ANY WARRANTY; without even the implied warranty of
-c	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-c	GNU General Public License for more details.
+c       This program is free software; you can redistribute it and/or modify
+c       it under the terms of the GNU General Public License as published by
+c       the Free Software Foundation; version 2 of the License.
 c
-c	Contact info: jkaplan@bgc-jena.mpg.de
+c       This program is distributed in the hope that it will be useful,
+c       but WITHOUT ANY WARRANTY; without even the implied warranty of
+c       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+c       GNU General Public License for more details.
+c
+c       Contact info: jkaplan@bgc-jena.mpg.de
 c---------------------------------------------------------------------------
 c
-c				B I O M E 4 . F
+c                            B I O M E 4 . F
 c
 c---------------------------------------------------------------------------
 c      This is BIOME4, based on BIOME3 (Haxeltine and Prentice 1996).
 c
-c      All arguments to and from this subroutine are passed through two arrays: 
+c      All arguments to and from this subroutine are passed through two arrays:
 c
 c              "vars_in" and "output"
 c
 c      You can customize the contents of these arrays to suit your own needs
-c      based on the assignments in the beginning of the program and the 
+c      based on the assignments in the beginning of the program and the
 c      output assignments in the subroutine "competition2".  I suggest each
 c      user write his own driver software.
 c
@@ -50,35 +50,35 @@ c      By Jed O. Kaplan 1994-1999.
 c
 c      For further reference see:
 c
-c	Haxeltine and Prentice, I.C. 1996. BIOME3: An equilibrium 
-c	terrestrial biosphere model based on ecophysiological 
-c	constraints, resource availibility and competition among
-c  	plant functional types, Global Biogeochemical Cycles, 10(4) 693-709.
+c       Haxeltine and Prentice, I.C. 1996. BIOME3: An equilibrium
+c       terrestrial biosphere model based on ecophysiological
+c       constraints, resource availibility and competition among
+c       plant functional types, Global Biogeochemical Cycles, 10(4) 693-709.
 c
 c      Please remove this header and change the name of your new model
 c      if you make ANY alterations to the code!
 c
-c      Author:	Jed O. Kaplan
-c      Date:	22 October 1999
-c      Version:	v4.2b2
+c      Author:  Jed O. Kaplan
+c      Date:    22 October 1999
+c      Version: v4.2b2
 c      Revised: 02.11.99 by JOK
-c	Added back in d13C/DeltaE functionality
+c       Added back in d13C/DeltaE functionality
 c      Revised: 18.11.99 by JOK
-c	Changed competition subroutine (line 708-709),
+c       Changed competition subroutine (line 708-709),
 c       so that npp=npp(dom), not npp=npp(wdom).
 c      Revised: 15.12.99 by JOK
-c	Added functionality to tune soil parameters when the model
-c	is running in diagnostic mode. (line 240-251)
-c	Modified hydrology subroutine to handle low moisture retention
-c	soils (line 2356-2364) with else statements setting w to 0 when
-c	k=0 (this should be true)
+c       Added functionality to tune soil parameters when the model
+c       is running in diagnostic mode. (line 240-251)
+c       Modified hydrology subroutine to handle low moisture retention
+c       soils (line 2356-2364) with else statements setting w to 0 when
+c       k=0 (this should be true)
 c      Revised: 17.12.99 by JOK
-c	Changed this header information to reflect what the soils data
-c	actually is.
-c	Examined hydrology subroutine to establish sensitivity to soil
-c	physical properties.
-c	Corrected line 2348 percolation function should always be to the 
-c	power 4 (**4) and not scaled to k().
+c       Changed this header information to reflect what the soils data
+c       actually is.
+c       Examined hydrology subroutine to establish sensitivity to soil
+c       physical properties.
+c       Corrected line 2348 percolation function should always be to the
+c       power 4 (**4) and not scaled to k().
 c
 c------------------------------------------------------------------------
 
@@ -108,15 +108,15 @@ c------------------------------------------------------------------------
 
       real vars_in(50)
       real output(500)
-      
+
       character*1 yorn
-      
+
       real sumagnpp,delag,wtagnpp
-      
+
 c----------------------------
 
       character*40 biomename(28)
-      
+
       data biomename /
      >      'Tropical evergreen forest',
      >      'Tropical semi-deciduous forest',
@@ -155,17 +155,17 @@ c     assign the variables that arrived in the array vars_in
       co2=vars_in(2)
       p=vars_in(3)
       tminin=vars_in(4)
-      
+
       do i=1,12
        temp(i)=vars_in(4+i)
        prec(i)=vars_in(16+i)
        clou(i)=vars_in(28+i)
       end do
-       
+
       do i=1,4
        soil(i)=vars_in(40+i)
       end do
-      
+
       iopt=nint(vars_in(46))
 
       if (iopt.eq.1.) then
@@ -173,9 +173,9 @@ c     assign the variables that arrived in the array vars_in
       else
        diagmode=.false.
       end if
-      
+
 c----------------------------
- 
+
 c      set a dummy rad anomaly (not used in this version)
        do i=1,12
         radanom(i)=1.0
@@ -197,20 +197,20 @@ c      Initialize soil texture specific parameters
 c-------------------------------------------------------------------------
 c      Linearly interpolate mid-month values to quasi-daily values:
        call daily(temp,dtemp)
-       call daily(clou,dclou)   
-       call daily(prec,dprecin)   
+       call daily(clou,dclou)
+       call daily(prec,dprecin)
 c--------------------------------------------------------------------------
 c      Initialize parameters derived from climate data:
        call climdata(tcm,twm,gdd5,gdd0,tprec,temp,prec,dtemp,alttmin)
-           
+
        call soiltemp(temp,soil,tsoil)
 c--------------------------------------------------------------------------
 c      Calculate mid-month values for pet,sun & dayl from temp,cloud & lat:
        call ppeett
-     >  (lat,dtemp,dclou,dpet,temp,sun,dayl,rad0,ddayl,radanom)  
+     >  (lat,dtemp,dclou,dpet,temp,sun,dayl,rad0,ddayl,radanom)
 c-------------------------------------------------------------------------
 c      Run snow model:
-       call snow(dtemp,dprec,dmelt,dprecin,maxdepth)   
+       call snow(dtemp,dprec,dmelt,dprecin,maxdepth)
 c-------------------------------------------------------------------------
 
 c      Initialize the evergreen phenology
@@ -220,10 +220,10 @@ c      Initialize the evergreen phenology
        end do
 
 c      Initialize pft specific parameters
-       call pftdata(pftpar)   
+       call pftdata(pftpar)
 
 c--------------------------------------------------------------------------
-c      Rulebase of absolute constraints to select potentially presents pfts:  
+c      Rulebase of absolute constraints to select potentially presents pfts:
 
         call constraints
      >      (tcm,twm,tminin,gdd5,rad0,pfts,tmin,maxdepth,gdd0)
@@ -268,14 +268,14 @@ c       Reinitialize soil texture specific parameters
         k(6)=soil(4)
 
        end if
-       
+
        write(*,*)'The following PFTs will be computed:'
 
       end if
 
 c--------------------------------------------------------------------------
 c     Calculate optimal LAI & NPP for the selected pfts:
-        
+
       do pft=1,numofpfts
 
        optlai(pft)=0.0
@@ -296,30 +296,30 @@ c        Initialize the generic summergreen phenology
       end do
 c------------------------------------------------------------------------------
 c      Select dominant plant type/s on the basis of modelled optimal NPP & LAI:
-       
+
        call competition2
      > (optnpp,optlai,wetness,tmin,tprec,pfts,optdata,output,diagmode,
      >  biome,numofpfts,gdd0,gdd5,tcm,pftpar,soil)
 
 c------------------------------------------------------------------------------
 c      Final output biome is given by the integer biome:
- 
+
        output(1)=biome
        output(48)=lon
        output(49)=lat
-       
+
 
        do pft=1,numofpfts
-       
+
         output(300+pft)=nint(optnpp(pft))
         output(300+numofpfts+pft)=nint(optlai(pft)*100.0)
-       
+
 c-----------------------
         if (pfts(pft).ne.0) then
         if (diagmode) then
 c       type some diagnostic output here
          write(*,10)pft,optlai(pft),optnpp(pft),wetness(pft),
-     >    ((optdata(pft,i)/10.),i=37,48) 
+     >    ((optdata(pft,i)/10.),i=37,48)
 10       format(I3,F5.2,F7.1,F6.1,12F6.1)
         end if
         end if
@@ -327,32 +327,32 @@ c       type some diagnostic output here
 c-----------------------
 
        end do
-       
+
       if (diagmode) then
        write(*,'(A,I3,A,A)')'Biome',biome,' ',biomename(biome)
-       
+
        sumagnpp=0.0
        delag=0.0
        do i=1,6
         if (optdata(8,36+i).gt.0) then
          sumagnpp=sumagnpp+(real(optdata(8,36+i))/10.)
-	end if
+        end if
        end do
 
        do i=1,6
         if (optdata(8,36+i).gt.0) then
-	wtagnpp=real(optdata(8,36+i))/(sumagnpp*10.)
+        wtagnpp=real(optdata(8,36+i))/(sumagnpp*10.)
         delag=delag+real((optdata(8,79+i))*wtagnpp/100.)
         end if
        end do
-       
+
        write(*,'(A,F6.2,A)')
      > 'The deltaA of C3 grass is',delag,' per mil.'
 
        write(*,*)'press return to continue'
        read(*,*)
       end if
-     
+
       return
       end
 
@@ -371,9 +371,9 @@ c*******************************************************************************
       real temperatenpp,tprec,wetness(0:numofpfts),lai,npp
       real woodnpp,grassnpp,subnpp,gdd0,gdd5,ratio,lairatio,nppdif
       real wetlayer(0:numofpfts,2),wetratio(0:numofpfts)
-      
+
       real npprat,treepct,grasspct
-      
+
       real output(500)
 
 c      real woodypercent,grasspercent
@@ -401,7 +401,7 @@ c      real woodypercent,grasspercent
         present(pft)=.false.
        end if
       end do
-      
+
       present(12)=.true.
 
 c----Initialize all of the variables that index an array---
@@ -431,7 +431,7 @@ c-----Find the PFTs with the highest npp and lai-------------------------
 
        if (grass(pft)) then                 !grass PFT's
         if (optnpp(pft).gt.grassnpp) then
-         grassnpp=optnpp(pft) 
+         grassnpp=optnpp(pft)
          grasspft=pft
         end if
 
@@ -451,7 +451,7 @@ c-----Find the PFTs with the highest npp and lai-------------------------
        end if
 
       end do
- 
+
 c-----Find average annual soil moisture value for all PFTs:----------
 
 
@@ -471,10 +471,10 @@ c        mwet=optdata(pft,m+12)
         wetlayer(pft,1)=wetlayer(pft,1)+optdata(pft,m+412)/12.  !top
         wetlayer(pft,2)=wetlayer(pft,2)+optdata(pft,m+424)/12.  !bottom
         if (mwet.gt.wettest(pft)) wettest(pft)=mwet
-	if (mwet.lt.driest(pft)) then 
-	 drymonth(pft)=m
-	 driest(pft)=mwet
-	end if
+        if (mwet.lt.driest(pft)) then
+         drymonth(pft)=m
+         driest(pft)=mwet
+        end if
        end do
 
       end do
@@ -511,7 +511,7 @@ c-----------------------------------------------------------
        firedays=optdata(wdom,199)
        subfiredays=optdata(subpft,199)
        greendays=optdata(wdom,200)
-      else 
+      else
        firedays=0
        subfiredays=0
        greendays=0
@@ -527,7 +527,7 @@ c------------------------------------------------------------
        if (gdd5.gt.5000.0) then
         wdom=2
         goto 1
-       end if	
+       end if
       end if
 
 c------------------------------------------------------------
@@ -536,18 +536,18 @@ c     Under certain conditions grass will be the dominant or co-dominant PFT:
       if (wdom.eq.1) then
        if (optnpp(wdom).lt.2000.0) then
         wdom=2
-	subpft=1
-	goto 1
+        subpft=1
+        goto 1
        end if
-      end if  	
+      end if
 
       if (wdom.eq.2) then
        if (woodylai.lt.2.0) then
         optpft=grasspft
        else if (grasspft.eq.9.and.woodylai.lt.3.6) then
         optpft=14
-       else if 
-     >  (greendays.lt.270.and.tcm.gt.21.0.and.tprec.lt.1700.0) 
+       else if
+     >  (greendays.lt.270.and.tcm.gt.21.0.and.tprec.lt.1700.0)
      > then
         optpft=14
        else
@@ -565,46 +565,46 @@ c     Under certain conditions grass will be the dominant or co-dominant PFT:
        else
         optpft=wdom
        end if
-      end if 
+      end if
 
       if (wdom.eq.4) then
        if (woodylai.lt.2.0) then
         optpft=grasspft
        else if (firedays.gt.210.and.nppdif.lt.0.0) then
-	if (.not.flop.and.subpft.ne.0) then
-	 wdom=subpft
-	 subpft=4
-	 flop=.true.
-	 goto 1
+        if (.not.flop.and.subpft.ne.0) then
+         wdom=subpft
+         subpft=4
+         flop=.true.
+         goto 1
         else
-	 optpft=grasspft
-	end if
+         optpft=grasspft
+        end if
        else if (woodylai.lt.3.0.or.firedays.gt.180) then
         if (nppdif.lt.0.0) then
          optpft=14
-	else if (.not.flop.and.subpft.ne.0) then
-	 wdom=subpft
-	 subpft=4
-	 flop=.true.
-	 goto 1
-	end if
+        else if (.not.flop.and.subpft.ne.0) then
+         wdom=subpft
+         subpft=4
+         flop=.true.
+         goto 1
+        end if
        else
-	optpft=wdom
+        optpft=wdom
        end if
       end if
 
       if (wdom.eq.5) then
        if (present(3)) then
         wdom=3
-	subpft=5
-	goto 1
+        subpft=5
+        goto 1
 c       else if (nppdif.lt.0.0) then
-c	if (.not.flop.and.subpft.ne.0) then
-c	 wdom=subpft
-c	 subpft=5
-c	 flop=.true.
-c	 goto 1
-c	end if  
+c       if (.not.flop.and.subpft.ne.0) then
+c        wdom=subpft
+c        subpft=5
+c        flop=.true.
+c        goto 1
+c       end if
        else if (optnpp(wdom).lt.140.0) then
         optpft=grasspft
        else if (woodylai.lt.1.2) then
@@ -612,7 +612,7 @@ c	end if
        else
         optpft=wdom
        end if
-      end if 
+      end if
 
 
 c     add npp limits on other PFT's (tropical mountain story)
@@ -621,12 +621,12 @@ c     add npp limits on other PFT's (tropical mountain story)
        if (optnpp(wdom).lt.140.0) then
         optpft=grasspft
        else if (firedays.gt.90) then
-	if (.not.flop.and.subpft.ne.0) then
-	 wdom=subpft
-	 subpft=6
-	 flop=.true.
-	 goto 1
-	end if  
+        if (.not.flop.and.subpft.ne.0) then
+         wdom=subpft
+         subpft=6
+         flop=.true.
+         goto 1
+        end if
        else
         optpft=wdom
        end if
@@ -639,12 +639,12 @@ c       else if (optnpp(wdom).lt.120.0) then
 c        optpft=14
        else if (wetness(wdom).lt.30.0.and.nppdif.lt.0.0) then
         optpft=grasspft
-       else	
+       else
         optpft=wdom
        end if
-      end if 		  
+      end if
 
-      if (wdom.eq.0) then 
+      if (wdom.eq.0) then
        if (grasspft.ne.0) then
         optpft=grasspft
        else if (optnpp(13).ne.0.0) then
@@ -662,7 +662,7 @@ c        optpft=14
        else
         optpft=10
        end if
-      end if 	
+      end if
 
       if (optpft.eq.grasspft) then
        if (optlai(grasspft).lt.1.8.and.present(10)) then
@@ -698,7 +698,7 @@ c     output some diagnostic results
        write(*,5)wdom,woodnpp,woodylai,grasspft,grassnpp,subpft,
      >           optdata(8,52)/100.
 5      format(I5,F10.2,F10.2,I5,F10.2,I5,F8.2,F8.2)
-      
+
       end if
 c------------------------------------------------------
 
@@ -708,14 +708,14 @@ c     put some variables into format for output
 
 c------------------------------------------------------
       if (optpft.eq.14) then
-      
+
        npprat=woodnpp/grassnpp
 
        treepct=((8./5.)*npprat)-.54
-       
+
        if (treepct.lt.0.0) treepct=0.0
        if (treepct.gt.1.0) treepct=1.0
-      
+
        grasspct=1.-treepct
 
        dom=wdom
@@ -754,7 +754,7 @@ c     >    (optdata(wdom,50)+(2.*(optdata(grasspft,50))))/3.0
 c      %C4 NPP
        optdata(dom,98)=
      >    (optdata(wdom,98)+(2.*(optdata(grasspft,98))))/3.0
-       
+
       end if
 c------------------------------------------------------
 
@@ -780,10 +780,10 @@ c      lai=grasslai
 c-----------------------------------------------------------------------
 c       The values of all output variables, except the actual biome type
 c       [output(1)] are assigned here:
- 
+
 
         output(2)=nint(lai*100.)
-        output(3)=nint(npp)  
+        output(3)=nint(npp)
         output(4)=nint(optlai(wdom)*100.)
         output(5)=nint(optnpp(wdom))
         output(6)=nint(optlai(grasspft)*100.)
@@ -804,7 +804,7 @@ c        output(10)= nint(wetness(wdom)*10.)
 c       Predicted runoff (for dom plant type, wood or grass):
         output(11)= optdata(wdom,6)
 
-c       Number of the dominant (woody) pft:  
+c       Number of the dominant (woody) pft:
         output(12)=optpft
 c        output(12)=wdom
 
@@ -825,11 +825,11 @@ c       Total annual PAR MJ.m-2.yr-1
          output(17)=100
         end if
 
-        if (dom.eq.0) then 
+        if (dom.eq.0) then
          output(18)=0.0
         else
          output(18)=nint(pftpar(dom,6)*100.)  !root percent
-        end if      
+        end if
 c       Store monthly fpar values in positions 25-36:
         do 12 month=1,12
          output(24+month)=optdata(dom,24+month)
@@ -845,28 +845,28 @@ c     changed to NPP for temporary output
 
        output(60)=optnpp(1)   !optimized NPP
        output(61)=optnpp(2)   !for all PFTs
-       output(62)=optnpp(3)  
+       output(62)=optnpp(3)
        output(63)=optnpp(4)
        output(64)=optnpp(5)
        output(65)=optnpp(6)
        output(66)=optnpp(7)
        output(67)=optnpp(8)
        output(68)=optnpp(9)
-       output(69)=optnpp(10)  
+       output(69)=optnpp(10)
        output(70)=optnpp(11)
 
 c------------------------------------
 
 c       output(60)=optdata(1,50)  !mean C3 photosynthesis discrimination
 c       output(61)=optdata(2,50)  !for all PFTs
-c       output(62)=optdata(3,50)  
+c       output(62)=optdata(3,50)
 c       output(63)=optdata(4,50)
 c       output(64)=optdata(5,50)
 c       output(65)=optdata(6,50)
 c       output(66)=optdata(7,50)
 c       output(67)=optdata(8,50)
 c       output(68)=optdata(9,50)
-c        
+c
 c       output(69)=optdata(8,51)  !mean C4 photosynthesis discrimination
 c       output(70)=optdata(9,51)  !for grasses
 
@@ -925,7 +925,7 @@ c------------------------------------
 c      Monthly soil moisture, mean, top, and bottom layers *100
 
        open(37,file='hydro.dat',status='unknown')
-       
+
        do pos=389,400
         output(pos)=optdata(dom,pos-376)  !mean
        end do
@@ -941,15 +941,15 @@ c      Monthly soil moisture, mean, top, and bottom layers *100
        do month=1,12
         write(37,*),month,output(412+month),output(424+month),dom
        end do
-       
+
        output(425)=nint(wetlayer(dom,1))
        output(426)=nint(wetlayer(dom,2))
        output(427)=nint(wetratio(dom)*100.)
-       
+
        output(450)=optdata(dom,450)    !meanKlit
        output(451)=optdata(dom,451)    !meanKsoil
-       output(452)=tcm		       !coldest monrh temp
-       output(453)=gdd0    	       !gdd0
+       output(452)=tcm                 !coldest monrh temp
+       output(453)=gdd0                !gdd0
        output(454)=gdd5                !gdd5
 
 c---------------------------------------------------------------------
@@ -974,7 +974,7 @@ c     Jed Kaplan 3/1998
 
       real optnpp,woodnpp,grassnpp,subnpp,nppdif,gdd0,gdd5,tcm
       real woodylai,grasslai,tmin
-      
+
       logical present(14)
 
 c     list of the 28 biomes assigned, including land ice
@@ -1018,7 +1018,7 @@ c------------------------------------
 
 c-----arctic/alpine biomes-----------
       if (optpft.eq.13) then
-       biome=26    !cushion-forb tundra 
+       biome=26    !cushion-forb tundra
        goto 200
       end if
 
@@ -1027,10 +1027,10 @@ c-----arctic/alpine biomes-----------
          biome=25  !prostrate shrub tundra
          goto 200
         else if (gdd0.lt.500.0) then
-         biome=24  !dwarf shrub tundra 
+         biome=24  !dwarf shrub tundra
         else
          biome=23  !shrub tundra
-        end if 
+        end if
        goto 200
       else if (optpft.eq.12) then
        biome=22    !steppe-tundra
@@ -1047,7 +1047,7 @@ c-----desert-------------------------
         else
          biome=14
          goto 200
-	end if
+        end if
        else
         biome=21
         goto 200
@@ -1069,16 +1069,16 @@ c-----boreal biomes------------------
       if (optpft.eq.6) then
        if (gdd5.gt.900.0.and.tcm.gt.-19.0) then
         if (present(4)) then
-	 biome=7
-	else
+         biome=7
+        else
          biome=8
-	end if 
+        end if
        else
         if (present(4)) then
-	 biome=9
-	else
+         biome=9
+        else
          biome=10
-	end if 
+        end if
        end if
        goto 200
       end if
@@ -1097,7 +1097,7 @@ c-----boreal biomes------------------
         biome=11
         goto 200
        end if
-      end if       
+      end if
 c------------------------------------
 
 c-----temperate biomes---------------
@@ -1105,9 +1105,9 @@ c-----temperate biomes---------------
 
       if (optpft.eq.8) then
        if (gdd0.ge.800.0) then
-        biome=20 
+        biome=20
         goto 200
-       else 
+       else
         biome=22
         goto 200
        end if
@@ -1121,12 +1121,12 @@ c-----temperate biomes---------------
       if (optpft.eq.4) then
        if (present(6)) then
         if (tcm.lt.-15.) then
-	 biome=9 !cold mixed
-	else
-	 biome=7 !cool mixed
-	end if
-	goto 200
-       else if 
+         biome=9 !cold mixed
+        else
+         biome=7 !cool mixed
+        end if
+        goto 200
+       else if
      >  (present(3).or.
      >  (present(5).and.gdd5.gt.3000.0.and.tcm.gt.3.0))  !tmin -21?
      > then
@@ -1139,7 +1139,7 @@ c-----temperate biomes---------------
       end if
 
       if (optpft.eq.5) then
-       if (present(3)) then 
+       if (present(3)) then
         biome=6
         goto 200
        else if (subpft.eq.4.and.nppdif.lt.50.) then
@@ -1160,9 +1160,9 @@ c-----savanna and woodland-----------
        if (woodpft.le.2) then
         if (woodylai.gt.4.0) then
          biome=12  !tropical savanna
-        else	
-         biome=13  !tropical xero scrub 
-	end if
+        else
+         biome=13  !tropical xero scrub
+        end if
         goto 200
        else if (woodpft.eq.3) then
         biome=15   !sclerophyll woodland
@@ -1208,7 +1208,7 @@ c-----tropical biomes----------------
 
       end if
 c------------------------------------
-      
+
       biome=0
 
 200   return
@@ -1217,13 +1217,13 @@ c------------------------------------
 
 c*************************************************************************
 c      Run npp optimization model for one pft:
-   
+
        subroutine findnpp(pfts,pft,optlai,optnpp,wst,dtemp,sun,
      >  temp,dprec,dmelt,dpet,dayl,k,pftpar,optdata,dphen,co2,p,tsoil,
      >  realout,numofpfts)
 
        implicit none
-                                   
+
        integer numofpfts
        integer pft,i,pfts(numofpfts),optdata(0:numofpfts,500)
        integer inv(500),iterate
@@ -1251,8 +1251,8 @@ c      If pft.ne.0 this is a dummy call of subroutine, return zero values:
 
 c       print*,'entered findnpp',pft
 
-c---------------------------------------------------------------------      
-     
+c---------------------------------------------------------------------
+
 c      Calculate NPP at a range of different leaf areas by iteration:
 
       lowbound=0.01
@@ -1294,14 +1294,14 @@ c          realout(pft,i)=realin(i)
 
       end do
 
-c---------------------------------------------------------------------      
+c---------------------------------------------------------------------
 
 20     return
 
        end
 c***************************************************************************
 c      Subroutine growth calculates NPP of one PFT
- 
+
        subroutine growth(npp,maxlai,annp,sun,temp,dprec,dmelt,
      >  dpet,k,pftpar,pft,dayl,dtemp,outv,dphen,co2,p,tsoil,realin)
 
@@ -1345,7 +1345,7 @@ c      Subroutine growth calculates NPP of one PFT
 c       data (midday(m),m=1,12)
 c     *   / 16,44,75,105,136,166,197,228,258,289,319,350 /
 
-       data (days(month),month=1,12) 
+       data (days(month),month=1,12)
      *   /  31.,28.,31.,30.,31.,30.,31.,31.,30.,31.,30.,31.  /
 
 c      This array defines pft-specific maximum Ci/Ca ratios.
@@ -1359,18 +1359,18 @@ c---------------------------------------------------------------------------
        ca=co2*1e-6
 c---------------------------------------------------------------------------
 c      Initialize day one value for soil moisture
-c      COULD MAYBE DO THIS AS A FUNCTION OF AET/PET! 
+c      COULD MAYBE DO THIS AS A FUNCTION OF AET/PET!
        rainscalar=1000.
        wst = annp / rainscalar
        if(wst.ge.1.)  wst=1.
 c---------------------------------------------------------------------------
-c      Assign pft specific parameters for photosynthesis model 
+c      Assign pft specific parameters for photosynthesis model
 
        phentype  = nint(pftpar(pft,1))
        mgmin     = pftpar(pft,2)
        root      = pftpar(pft,6)
        age       = pftpar(pft,7)
-       c4pot     = pftpar(pft,11) 
+       c4pot     = pftpar(pft,11)
        grass     = nint(pftpar(pft,10))
        emax      = pftpar(pft,3)
 c----------------------------------------------------------------------------
@@ -1378,7 +1378,7 @@ c      Calculate the maxfvc from the maxlai and (fixed) k value
 c       kk=0.5
        maxfvc=1.-exp(-kk(pft)*maxlai)
 
-c------------------------------------------------------------------------    
+c------------------------------------------------------------------------
 c      Set the value of optratio depending on whether c4 plant or not.
 
 c       if (pft.eq.8.or.pft.eq.9.or.pft.eq.10) then
@@ -1398,7 +1398,7 @@ c       if (pft.eq.8.or.pft.eq.9.or.pft.eq.10) then
 
 c----------------------------------------------------------------------------
 c      Calculate monthly values for the optimum non-water-stressed gc (optgc)
-       
+
       maxgc=0.
       do 120 month=1,12
       m=month
@@ -1406,7 +1406,7 @@ c      Calculate monthly values for the optimum non-water-stressed gc (optgc)
 
 c------------------------------------------------------------------------
 c      First find the gc value resulting from the max ci/ca ratio
-    
+
 c      Find mid-monthly-day daily tstressed photosynthesis value
        fpar = 1.-exp(-kk(pft)*maxlai)
 
@@ -1425,7 +1425,7 @@ c     Calculate gt using the physical eqn from aday and ci/ca ratio
       else
        gt=0.0
       end if
-   
+
 c      This gives us the final non-water-stressed gc value
        optgc(m) = gt
 
@@ -1436,15 +1436,15 @@ c      Store output values:
 c-------------------------------------------------------------------------
 c      Calculate water balance and phenology for this pft/s and fvc/s
 c      Subroutine hydrology returns monthly mean gc & summed fvc value
-   
+
 c      Linearly interpolate the mid-month optgc & ga values to daily values
        call daily(optgc,doptgc)
-    
+
        call hydrology
      > (dprec,dmelt,dpet,root,k,maxfvc,pft,phentype,wst,
      >  doptgc,meangc,meanfvc,meanwr,meanaet,annaet,mgmin,dphen,dtemp,
      >  grass,runoff,runoffmo,wet,greendays,dayfvc,emax,
-     >  wilt,pftpar)      
+     >  wilt,pftpar)
 c-------------------------------------------------------------------------
 c     Now use the monthly values of fvc & meangc to calculate net & gross
 c     photosynthesis for an "average" day in the month and multiply by the
@@ -1456,7 +1456,7 @@ c     number of days in the month to get total monthly photosynthesis.
       annualparr=0.
       annualapar=0.
 
-c-------------------------------------------------------------------------      
+c-------------------------------------------------------------------------
       do month=1,12                                   !begin monthly loop here
       m=month
 
@@ -1468,12 +1468,12 @@ c     If meangc is zero then photosynthesis must also be zero
        rtbis=0.
        leafresp=lresp(m)*(meanfvc(m)/maxfvc)
 
-      else   
+      else
 c     Iterate to a solution for gphot given this meangc value!
 c....................................................................
 c      This is a tailored implementation of the bisection method
-c      with a fixed 8 bisections and assuming root is bracketed and 
-c      that f(x1)<0 and f(x2)>0   
+c      with a fixed 8 bisections and assuming root is bracketed and
+c      that f(x1)<0 and f(x2)>0
 
        x1=0.02
        x2=optratio+0.05
@@ -1483,8 +1483,8 @@ c      that f(x1)<0 and f(x2)>0
         dx=dx*0.5
         xmid=rtbis+dx
 c...................................................
-c      Evaluate fmid=Anetdt-Ap at the point ci/ca = xmid     
-              
+c      Evaluate fmid=Anetdt-Ap at the point ci/ca = xmid
+
        fpar = meanfvc(m)
 
        if (c4) then
@@ -1494,7 +1494,7 @@ c      Evaluate fmid=Anetdt-Ap at the point ci/ca = xmid
         call photosynthesis(xmid,sun(m),dayl(m),temp(m),
      >  age,leafresp,igphot,aday,fpar,p,ca,pft)
        end if
-  
+
        gt = 3600.*dayl(m)*meangc(m)
 
        if (gt.eq.0.0) then
@@ -1507,14 +1507,14 @@ c      Evaluate fmid=Anetdt-Ap at the point ci/ca = xmid
 c....................................................
 c      If fmid is closer to the root store new values
        if(fmid.le.0.)then
-        rtbis=xmid    
+        rtbis=xmid
         gphot = igphot
-       endif 
- 30    continue
-c....................................................................        
        endif
-      
-c     We already include the albedo in the calculation of the net 
+ 30    continue
+c....................................................................
+       endif
+
+c     We already include the albedo in the calculation of the net
 c     short wave radiation so apar here really is the absorbed PAR:
 c     Idea here is that annualfpar should be the total amount of PAR
 c     ansorbed during the year divided by the total amount of PAR per
@@ -1524,7 +1524,7 @@ c     Get PAR in units of MJ.m-2.month-1 (hence *1e-6)
       monthlyfpar(m) = meanfvc(m)
       monthlyparr(m) = sun(m)*days(m)*1e-6
       monthlyapar(m) = monthlyparr(m)*monthlyfpar(m)
-      annualapar  = annualapar + monthlyapar(m) 
+      annualapar  = annualapar + monthlyapar(m)
       annualparr  = annualparr + monthlyparr(m)
 
 c     Monthly gross photosynthesis (=numdays*average-daily-photosynthesis)
@@ -1533,7 +1533,7 @@ c     Monthly gross photosynthesis (=numdays*average-daily-photosynthesis)
 
 c     Calculate monthly leaf respiration (=numdays*average-daily-leafresp)
       mlresp(m) = days(m)*leafresp
-      alresp    = alresp + mlresp(m)    
+      alresp    = alresp + mlresp(m)
 
 c     store monthly values of Ca/Cst and leaf resp.
 
@@ -1601,7 +1601,7 @@ c     calculate monthly NPP
         if (mgrowresp(m).lt.0.0) mgrowresp(m)=0.0
        mnpp(m) = mgpp(m)-(maintresp(m)+mgrowresp(m))
       end do
-      
+
       maintresp(12)=
      >mlresp(12)+backleafresp(12)+mstemresp(12)+mrootresp(12)
       mgrowresp(12) = (0.02*(mgpp(1)-maintresp(1)))
@@ -1616,25 +1616,25 @@ c     calculate monthly NPP
 c----------------------------------------------------------------------
 
 c     If this is a temperate grass or desert shrub pft, compare both
-c     C3 and C4 NPP and choose the more productive one on a monthly basis. 
-c     However the C4 advantage period must be for at least two months 
+c     C3 and C4 NPP and choose the more productive one on a monthly basis.
+c     However the C4 advantage period must be for at least two months
 c     (ie. long enough to complete a life cycle).
 
 c      if (pft.eq.8.or.pft.eq.10) then
       if (pft.eq.10) then
        if (c4) then
         c4=.false.
-        goto 100       !compute everything again, with C3 pathway 
+        goto 100       !compute everything again, with C3 pathway
        end if
       end if
-  
+
       c4months=0
       annc4npp=0.0
 
       do m=1,12
        if (pft.eq.9) then
         c4month(m)=.true.
-        
+
        else
         c4month(m)=.false.
        end if
@@ -1731,11 +1731,11 @@ c     calculate monthly ecosystem carbon flux NPP-Hetresp
 c-----------------------------------------------
 c     Call fire subroutine
       call fire (wet,pft,maxlai,npp,firedays)
-      
+
 c--------------------------------------------------------------------------
 c     Outputs section:
-     
-c     Output the monthly soil moisture value for this pft and lai:   
+
+c     Output the monthly soil moisture value for this pft and lai:
       do m=1,12
 
        outv(12+m)=nint(100.*meanwr(m,1))
@@ -1746,7 +1746,7 @@ c     Output the monthly soil moisture value for this pft and lai:
       end do
 
 c     Record values of output variables:
-      outv(1) = nint(npp)                
+      outv(1) = nint(npp)
       outv(3) = nint(annaet)
       outv(4) = nint(maxgc)
       outv(5) = nint(stemresp)
@@ -1776,14 +1776,14 @@ c       outv(100+m)=nint(mlresp(m)*10.)
        outv(160+m)=nint(meangc(m))
        outv(172+m)=nint(monthlylai(m)*100.)
        outv(184+m)=nint(runoffmo(m))
-       
+
        if (meangc(m).ne.0) then
         mcount=mcount+1
         anngasum=anngasum+(mgpp(m)/meangc(m))  !new line for A/g!
        end if
-       
+
       end do
-      
+
       outv(150)=nint((anngasum/mcount)*100.)            !new line for A/g!
 
       outv(149)=nint(annnep*10.)
@@ -1794,10 +1794,10 @@ c       outv(100+m)=nint(mlresp(m)*10.)
       do i=1,40
        outv(200+i)=nint(tendaylai(i)*100.)
       end do
-      
+
       outv(450)=nint(meanKlit*100.)
       outv(451)=nint(meanKsoil*100.)
-      
+
 c------------------------------------------------------------------------
       return
 
@@ -1805,11 +1805,11 @@ c------------------------------------------------------------------------
 
 c***************************************************************************
 c      C3 Photosynthesis subroutine:
-   
+
        subroutine photosynthesis(ratio,dsun,daytime,temp,
      *  age,leafresp,grossphot,aday,fpar,p,ca,pft)
 
-       implicit none      
+       implicit none
 
        integer pft,n
 
@@ -1831,7 +1831,7 @@ c      C3 Photosynthesis subroutine:
        parameter(slo2=20.9*1e3,jtoe=2.3*1e-6,optratio=0.95)  !figure this out
        parameter(ko25=30.*1e3,kc25=30.,tao25=2600.,cmass=12.)
        parameter(kcq10=2.1,koq10=1.2,taoq10=0.57,twigloss=1.)
-                         
+
 c      t0 defines the minimum mean monthly temperature
 c      at which photosynthesis takes place
 
@@ -1852,7 +1852,7 @@ c      The leafcost parameter is related to expected leaf longevity
 c      Need to change the partial pressure of o2 also:
 
        mfo2=slo2/1e5
-       o2=p*mfo2 
+       o2=p*mfo2
 
 c      If daytime<=1 hour set to one hour to avoid /0.
        if(daytime.le.4.) daytime=4.
@@ -1878,16 +1878,16 @@ c      work out temperature adjusted values of parameters
 c      Set non-co2-dependent parameters
        s  = drespc3*(24./daytime)
        ts = o2 / (2.*tao)
-       kk = kc*(1. + (o2/ko)) 
+       kk = kc*(1. + (o2/ko))
        z  = cmass*jtoe*dsun*fpar*twigloss*tune
 
 c--------------------------------------------------------------------
 c      First calculate the vm value based on a ratio=0.95
 
        pi = optratio*ca*p
-       c1 = tstress*qeffc3*( (pi-ts)/(pi+2.*ts) )       
-       c2 = (pi - ts) / (pi + kk) 
-       oc = ( (s-teta*s)/(c2-teta*s) )**0.5      
+       c1 = tstress*qeffc3*( (pi-ts)/(pi+2.*ts) )
+       c2 = (pi - ts) / (pi + kk)
+       oc = ( (s-teta*s)/(c2-teta*s) )**0.5
 
 c      Estimate the optimal value of Vm at ratio=0.95 g(C).m-2.day-1
 
@@ -1901,7 +1901,7 @@ c.........................................................
 c      Now use this vm value to calculate actual photosynthesis
 
 c      Calculate inter-cellular co2 partial pressure
-       pi = ratio*ca*p 
+       pi = ratio*ca*p
 
 c      If pi is less than the compensation point then grossphot=0.
 
@@ -1909,7 +1909,7 @@ c      If pi is less than the compensation point then grossphot=0.
         grossphot=0.0
        else
 c      Otherwise calculate grossphot
-        c1 = tstress*qeffc3*( (pi-ts)/(pi+2.*ts) )       
+        c1 = tstress*qeffc3*( (pi-ts)/(pi+2.*ts) )
         c2 = (pi - ts) / (pi + kk)
 
         if (z.eq.0.0) then
@@ -1952,11 +1952,11 @@ c      Change Aday from gC.m-2.day-1 to umol.day-1
 
 c**************************************************************************
 c     C4 photosynthesis subroutine:
- 
+
       subroutine c4photo(ratio,dsun,daytime,temp,
      >  age,leafresp,grossphot,aday,fpar,p,ca,pft)
 
-       implicit none      
+       implicit none
 
        integer pft
 
@@ -2025,7 +2025,7 @@ c      Set non-co2-dependent parameters
 
 c      Need to change the partial pressure of o2 also:
        mfo2=slo2/1e5
-       o2=p*mfo2 
+       o2=p*mfo2
 
 c--------------------------------------------------------------------
        pi = optratio*ca*p
@@ -2056,7 +2056,7 @@ c      Otherwise calculate grossphot
         else
          je=c1*z / daytime
         end if
-     
+
         if (vmaxc4.eq.0.0) then
          jc=0.0
         else
@@ -2070,7 +2070,7 @@ c       Damage gives the limitation of c4 photosynthesis by pi
          damage = 1.
         endif
         wif = damage*daytime/(2.*teta)
-  
+
         if (je.eq.0.0.and.jc.eq.0.0) then
          grossphotc4=0.0
         else
@@ -2099,7 +2099,7 @@ c      Change Aday from gC.m-2.day-1 to mm.day-1
 
 c**************************************************************************
 c      Subroutine to calculate annual respiration costs
- 
+
        subroutine respiration(npp,gpp,alresp,temp,grass,lai,
      >  stemresp,percentcost,mstemresp,mrootresp,pft,mlresp,
      >  fpar,backleafresp)
@@ -2116,7 +2116,7 @@ c      Subroutine to calculate annual respiration costs
        real allocfact(13)
        real fpar(12),backleafresp(12),leafmaint
 
-c       data (days(m),m=1,12) 
+c       data (days(m),m=1,12)
 c     *   /  31.,28.,31.,30.,31.,30.,31.,31.,30.,31.,30.,31.  /
 
 c      Grass defines if there is sapwood respiration
@@ -2128,7 +2128,7 @@ c      y   = Efficiency with which carbon is turned into biomass
 c      p1  = Fine root respiration to litterfall ratio
 
 c      stemcarbon = sapwood mass as KgC.m-2(leaf area).m-2(ground area)
-       parameter(Ln=50.,y=0.8,m10=1.6,p1=0.25,stemcarbon=0.5) 
+       parameter(Ln=50.,y=0.8,m10=1.6,p1=0.25,stemcarbon=0.5)
 
 c      e0, t0 and tref are parameters from Lloyd & Taylor 1995
        parameter(e0=308.56, tref=10.0,t0=46.02)
@@ -2146,7 +2146,7 @@ c------------------------------------------------------------------------
 c      Calculate leafmass (gC.m-2) and litterfall (gC.m-2.year-1)
        litterfall=lai*Ln*allocfact(pft)
 
-c      Calculate stem maintenace respiration costs in gC.year-1 
+c      Calculate stem maintenace respiration costs in gC.year-1
 
        stemresp = 0.0
 
@@ -2160,7 +2160,7 @@ c      Calculate stem maintenace respiration costs in gC.year-1
         stemresp = mstemresp(m) + stemresp
        end do
 
-c      Calculate belowground maintenance respiration costs in gC.year-1     
+c      Calculate belowground maintenance respiration costs in gC.year-1
 
        leafmaint=0.0
        finerootresp = p1*litterfall
@@ -2169,7 +2169,7 @@ c      Calculate belowground maintenance respiration costs in gC.year-1
         backleafresp(m)=mrootresp(m)*fpar(m)*4.0
         leafmaint=backleafresp(m)+leafmaint
        end do
-   
+
 c      Assume leaf respiration costs supplied are in units of gC.year-1
        leafresp = alresp+leafmaint
 
@@ -2186,7 +2186,7 @@ c      20% of whats left goes to construction respiration, gC.year-1
        growthresp = (1.-y)*(gpp-stemresp-leafresp-finerootresp)
 
 c      Finally calculate the resulting annual NPP, gC.year-1
-       npp = gpp -stemresp-leafresp-finerootresp-growthresp     
+       npp = gpp -stemresp-leafresp-finerootresp-growthresp
 
 c-------------------------------------------------------------------------
 
@@ -2205,10 +2205,10 @@ c      Find respiration costs as a percentage of GPP
         percentcost = 100.*(gpp-npp)/gpp
        else
         percentcost = 0.
-       end if   
+       end if
 
        return
-       end     
+       end
 
 c*************************************************************************
 
@@ -2246,17 +2246,17 @@ c       parameter(onnw=0.4,offw=0.3)
        offw=pftpar(pft,4)
 
        data days / 31,28,31,30,31,30,31,31,30,31,30,31  /
-       
-c      Initialize soil moisture stores for day one of the "spin-up" year 
+
+c      Initialize soil moisture stores for day one of the "spin-up" year
        w(1) = wst
        w(2) = wst
 
 c----------------------------------------------------------------------------
 c      Run the hydrology and phenology models!
-     
-c      Run for one "spin-up" year & then use output from the 2nd year 
+
+c      Run for one "spin-up" year & then use output from the 2nd year
        do 100 twice = 1,2
-  
+
        d=0
        annaet=0.
        sumoff=0.
@@ -2267,17 +2267,17 @@ c      Do the daily calculations to find the monthly output values
        do 110 month = 1,12
 
         meanfvc(month) = 0.
-        meangc(month)  = 0.    
+        meangc(month)  = 0.
         meanwr(month,1)= 0.
         meanwr(month,2)= 0.
         meanwr(month,3)= 0.
-	meanaet(month) = 0.0   
-	runoffmonth(month)=0.0 
+        meanaet(month) = 0.0
+        runoffmonth(month)=0.0
 
        do 120 dayofmonth = 1,days(month)
        d = d+1
 
-c      Calculate effective soil moisture in rooting zone 
+c      Calculate effective soil moisture in rooting zone
        wr =  root*w(1) + (1.-root)*w(2)
 
 c      deq is the daily PET
@@ -2286,30 +2286,30 @@ c      phentype is phenological type (1 evergreen, 2 summergreen, 3 watergreen)
 c      offw is soil moisture threshold for leaf drop
 
 
-c      Calculate vegetation phenology for today     
+c      Calculate vegetation phenology for today
 
-       if(phentype.eq.1)then                   !evergreen    
-        fvc = maxfvc                                        
+       if(phentype.eq.1)then                   !evergreen
+        fvc = maxfvc
 
        else if(phentype.eq.2)then              !cold deciduous
-        fvc = maxfvc*dphen(d,grass)  
+        fvc = maxfvc*dphen(d,grass)
 
        else if(grass.eq.2)then                 !cold deciduous
-        fvc = maxfvc*dphen(d,grass)  
+        fvc = maxfvc*dphen(d,grass)
 
 c------new code-02.05.99----
          if(fvc.gt.0.01.and.wr.gt.offw)then  !drought deciduous
           fvc = fvc
-	 else if(fvc.lt.0.01.and.wr.gt.onnw)then
-	  fvc = fvc
-	 else
-	  fvc = 0.0
-	 end if
+         else if(fvc.lt.0.01.and.wr.gt.onnw)then
+          fvc = fvc
+         else
+          fvc = 0.0
+         end if
 c------end new code---------
 
        elseif(fvc.gt.0.01.and.wr.gt.offw)then  !drought deciduous
         fvc = maxfvc
-       elseif(fvc.lt.0.01.and.wr.gt.onnw)then    
+       elseif(fvc.lt.0.01.and.wr.gt.onnw)then
         fvc = maxfvc
        else
         fvc = 0.0
@@ -2336,12 +2336,12 @@ c---------------------------
 
 c      Calculate the optimal conductance for today
        gmin = mgmin*fvc
-       gc    = gcopt(d)*(fvc/maxfvc)   
-       gsurf = gc + gmin 
-      
+       gc    = gcopt(d)*(fvc/maxfvc)
+       gsurf = gc + gmin
+
 c      Calculate aet from gc & Eq (=deq) using eqn from Monteith 1995
-       if (gsurf.gt.0.) then           
-        alfa  = alfam*(1.-exp(-gsurf/gm) )  
+       if (gsurf.gt.0.) then
+        alfa  = alfam*(1.-exp(-gsurf/gm) )
         aet   = alfa*deq(d)
        else
         alfa  = 0.
@@ -2357,7 +2357,7 @@ c      goes into the new phytomass
        wetphytomass = 0.01*aet
        waste = 0.01*aet
 
-       demand = aet + wetphytomass + waste   
+       demand = aet + wetphytomass + waste
 
 c      Calculate daily supply function in mm/day
        supply = emax*wr
@@ -2380,22 +2380,22 @@ c       Constrain gc value to zero!
          wilt=.true.
         end if
        end if
-      
+
 c      Calculate daily percolation from layer 1 to 2
 
        perc = k(1)*w(1)**4.
 c       evap = 0.10*deq(d)
        evap = 0.0
-       
+
 c      Exrati give rates of extraction from upper and lower soil layers
 
-       if (wr.gt.0.0) then   
+       if (wr.gt.0.0) then
         r1(1) =      root  * (w(1)/wr)
-        r1(2) =  (1.-root) * (w(2)/wr)       
+        r1(2) =  (1.-root) * (w(2)/wr)
        else
         r1(1) = 0.
         r1(2) = 0.
-       end if  
+       end if
 
 c....................................................
 
@@ -2421,7 +2421,7 @@ c      If w2 is filled beyond fc then get drainage from layer two
         drainage = (w(2)-1.)*k(6)
         w(2) = 1.
        end if
-       
+
 c       if (w(2).ge.1.) then
 c        drainage=k(1)/2.*w(2)**4.
 c        w(2)=w(2)-drainage
@@ -2437,15 +2437,15 @@ c      If w1 is filled above fc then get surface or sub-surface runoff
 
 c      To prevent errors, set moisture back to wp
 
-       if (w(1).le.0.) w(1)=0. 
+       if (w(1).le.0.) w(1)=0.
        if (w(2).le.0.) w(2)=0.
 
-c-----------------------------------------------------------------------  
+c-----------------------------------------------------------------------
        end if                 !the cold temp sensitive loop ends here
 c---------------------------------------------------------------------------
 
 c      Sum the daily aet values:
-       annaet = annaet + aet 
+       annaet = annaet + aet
 
 c      Sum the total runoff:
        sumoff=sumoff+runnoff+drainage
@@ -2473,14 +2473,14 @@ c      Sum the daily fvc value and average the daily gc value
 
  110   continue
  100   continue
-    
+
        return
        end
 c***************************************************************************
 c      Calculate the a generic phenology for any summergreen pft
 c      A three month period centred around the coldest month is
 c      defined as the minimum period during which foliage is not
-c      present. Plants then start growing leaves and the end of this 
+c      present. Plants then start growing leaves and the end of this
 c      3 month period or when the temperature gos above 5oC if this
 c      occurs later. Plants take 200 gdd5 to grow a full leaf canopy:
 
@@ -2495,12 +2495,12 @@ c      occurs later. Plants take 200 gdd5 to grow a full leaf canopy:
        real dphen(365,2),dtemp(365),ramp(2),tcm,gdd,temp(12),ont
        real today,tdif,tmin,ddayl(365),warm,pftpar(25,25)
 
-       data (daysinmonth(m),m=1,12) 
+       data (daysinmonth(m),m=1,12)
      *   / 31,28,31,30,31,30,31,31,30,31,30,31 /
 
 c-----------------------------------------------------------------------
 
-       ramp(1)=pftpar(pft,8)   
+       ramp(1)=pftpar(pft,8)
 
        if(pft.eq.7)then
         ont=0.0                  !this sets the minimum temp for growth
@@ -2539,7 +2539,7 @@ c      Find the months with the warmest and coldest temperatures (cm):
         day = 0
 
         do 30 m=1,12
-         do 40 dayofmonth=1,daysinmonth(m)            
+         do 40 dayofmonth=1,daysinmonth(m)
           day=day+1
 
           if (dtemp(day).gt.ont) then
@@ -2563,7 +2563,7 @@ c      Find the months with the warmest and coldest temperatures (cm):
           end if
           end if
 
-c         remove deciduous leaves in the fall when the temp or 
+c         remove deciduous leaves in the fall when the temp or
 c         photoperiod reaches a threshold.
 
           if (phencase.eq.1) then
@@ -2575,16 +2575,16 @@ c         photoperiod reaches a threshold.
              dphen(day,phencase)=0.
            end if
           else if (phencase.eq.2) then
-           if (dtemp(day).lt.-5.0) dphen(day,phencase)=0. 
+           if (dtemp(day).lt.-5.0) dphen(day,phencase)=0.
           end if
-       
+
  40      continue   !daily loop ends
  30     continue    !montlhy loop ends
  20    continue     !annual loop ends
  10    continue     !case (grass,tree) loop ends
 
  100   continue
-       
+
        return
        end
 c*************************************************************************
@@ -2645,23 +2645,23 @@ c      subroutine provides PFT specific parameters stored within subroutine
 C      Define all PFT specific parameters
 c          1  = Phenological type 1=evergreen,2=summergreen,3=raingreen
 c          2  = maximal value for minimum canopy conductance
-c          3  = value for Emax, maximum daily transpiration rate 
+c          3  = value for Emax, maximum daily transpiration rate
 C          4  = value of sw below which raingreen leaves drop
 C          5  = value of sw above which raingreen leaves appear
 c          6  = fraction of roots in top soil layer, 30 cm from Jackson et al.
 c          7  = Expected leaf longevity in months
-c          8  = Number of GDD5 required for full leaf out 
+c          8  = Number of GDD5 required for full leaf out
 c          9  = Number of GDD0 required for full leaf out
 c         10  = presence of sapwood respiration
 c         11  = c4 plant or not
 *    LIST OF ALL PLANT TYPES
-*    1 = tet Tropical Evergreen Trees   
-*    2 = trt Tropical Drought-deciduous Trees (raingreens) 
-*    3 = tbe Temperate Broadleaved Evergreen Trees 
+*    1 = tet Tropical Evergreen Trees
+*    2 = trt Tropical Drought-deciduous Trees (raingreens)
+*    3 = tbe Temperate Broadleaved Evergreen Trees
 *    4 = tst Temperate Deciduous Trees
 *    5 = ctc Cool Conifer Trees
-*    6 = bec Boreal Evergreen Trees     
-*    7 = bst Boreal Deciduous Trees   
+*    6 = bec Boreal Evergreen Trees
+*    7 = bst Boreal Deciduous Trees
 *    8 = C3/C4 temperate grass plant type
 *    9 = C4 tropical grass plant type
 *    10= C3/C4 woody desert plant type
@@ -2669,8 +2669,8 @@ c         11  = c4 plant or not
 *    12= cold herbaceous type
 *    13= Lichen/forb type
 
-       data ((var(iv,ip),ip=1,npar),iv=1,npft)     /   
-     *  1., 0.5, 10.0, -99.,-99. ,0.69 ,18. , -99.,-99., 1., 0., 
+       data ((var(iv,ip),ip=1,npar),iv=1,npft)     /
+     *  1., 0.5, 10.0, -99.,-99. ,0.69 ,18. , -99.,-99., 1., 0.,
      *  3., 0.5, 10.0, 0.5, 0.6  ,0.70 , 9. , -99.,-99., 1., 0.,
      *  1., 0.2,  4.8, -99.,-99. ,0.67 ,18. , -99.,-99., 1., 0.,
      *  2., 0.8, 10.0, -99.,-99. ,0.65 , 7. , 200.,-99., 1., 0.,
@@ -2700,37 +2700,37 @@ c      Subroutine to get soil parameters given soil class number
        parameter(d1=300.,d2=1200.)
        data ((store(i,j),i=1,2),j=1,9) /
 c-------------------------------------------------------------
-c       FAO soil texture data set values: 
+c       FAO soil texture data set values:
 c       1 coarse, 2 medium, 3 fine
-c       4 medium-coarse, 
-c 	5 fine-coarse, 
-c	6 fine-medium, 
-c	7 fine-medium-coarse,
+c       4 medium-coarse,
+c       5 fine-coarse,
+c       6 fine-medium,
+c       7 fine-medium-coarse,
 c       8 Organic, 9 Ice
-c       Selected FAO soil types: 
+c       Selected FAO soil types:
 c       1 Kastozems,2 Chernozems,3 Vertisols, 4 Phaeozems
 c
-c       k1      whc  
-     *  5., 	0.11,  
-     *  4.,	0.15,   
-     *  3.,	0.12,   
-     *  4.5,	0.13,   
-     *  4.,	0.115,  
-     *  3.5,	0.135,   
-     *  4.,	0.127,
+c       k1      whc
+     *  5.,     0.11,
+     *  4.,     0.15,
+     *  3.,     0.12,
+     *  4.5,    0.13,
+     *  4.,     0.115,
+     *  3.5,    0.135,
+     *  4.,     0.127,
 c       Organic soils:
-     *  9.,	0.30,  
+     *  9.,     0.30,
 c       Extra soil type:
-     *  0.2,	0.10 /
+     *  0.2,    0.10 /
 
-c     *  5., 	0.11,  
-c     *  4.,	0.15,   
-c     *  3.,	0.12,
-c     *  4.5,	0.13,   
-c     *  4.,	0.115,  
-c     *  3.5,	0.135,   
-c     *  4.,	0.127,
-c-------------------------------------------------------------       
+c     *  5.,    0.11,
+c     *  4.,    0.15,
+c     *  3.,    0.12,
+c     *  4.5,   0.13,
+c     *  4.,    0.115,
+c     *  3.5,   0.135,
+c     *  4.,    0.127,
+c-------------------------------------------------------------
 c      Model should not be called for grid cells mapped as ice (soil=9)
        if(soil(2).ge.9) stop 'Value of soil type is not allowed!'
 
@@ -2751,8 +2751,8 @@ c      Define water holding capacity for both soil layers (mm)
 
 c      Define k1 value (texture-dependent)
        k(1) = store(1,stype)
-     
-c      Define k2 value (not texture-dependent) 
+
+c      Define k2 value (not texture-dependent)
        k(2) = 4.
 
 
@@ -2764,7 +2764,7 @@ c     subroutine constraints provides environmental sieve
       subroutine constraints
      >      (tcm,twm,tminin,gdd5,rad0,pfts,tmin,maxdepth,gdd0)
 
-      implicit none        
+      implicit none
 
       integer npft,nclin,ip,iv,il
       integer pfts(13)
@@ -2778,13 +2778,13 @@ c     subroutine constraints provides environmental sieve
 
 c------------------------------------------------------
 *    LIST OF THE THIRTEEN PLANT FUNCTIONAL TYPES
-*    1 = tet = Tropical Evergreen 
+*    1 = tet = Tropical Evergreen
 *    2 = trt = Tropical Raingreen
-*    3 = wte = Temperate Broadleaved Evergreen   
-*    4 = tst = Temperate Summergreen 
-*    5 = ctc = Temperate Evergreen Conifer        
-*    6 = bec = Boreal Evergreen       
-*    7 = bst = Boreal Deciduous  
+*    3 = wte = Temperate Broadleaved Evergreen
+*    4 = tst = Temperate Summergreen
+*    5 = ctc = Temperate Evergreen Conifer
+*    6 = bec = Boreal Evergreen
+*    7 = bst = Boreal Deciduous
 *    8 = temperate grass
 *    9 = tropical/warm-temperate grass
 *   10 = Desert woody plant type C3, C4
@@ -2792,7 +2792,7 @@ c------------------------------------------------------
 *   12 = Cold herbaceous type
 *   13 = Lichen/forb type
 
-c     Define and initialize the limits of the climatic indices 
+c     Define and initialize the limits of the climatic indices
 
       data(((limits(ip,iv,il),il=1,2),iv=1,5),ip=1,npft) /
      +-99.9,-99.9,   0.0,-99.9, -99.9,-99.9, -99.9,-99.9,  10.0,-99.9,   !1
@@ -2808,7 +2808,7 @@ c     Define and initialize the limits of the climatic indices
      +-99.9,-99.9, -99.9,-99.9, -99.9,-99.9,  50.0,-99.9, -99.9, 15.0,   !11
      +-99.9,-99.9, -99.9,-99.9, -99.9,-99.9,  50.0,-99.9, -99.9, 15.0,   !12
      +-99.9,-99.9, -99.9,-99.9, -99.9,-99.9, -99.9,-99.9, -99.9, 15.0  / !13
-c      ltcm, utcm,  lmin, umin,  lgdd, ugdd, lgdd0,ugdd0,  ltwm, utwm 
+c      ltcm, utcm,  lmin, umin,  lgdd, ugdd, lgdd0,ugdd0,  ltwm, utwm
 
       data((limits(ip,6,il),il=1,2),ip=1,npft) /
      +-99.9,-99.9,  !1
@@ -2844,7 +2844,7 @@ c     set up climate indices array:
       clindex(5)=twm
       clindex(6)=maxdepth !snow depth
 
-c Determines the values of the climatic indices are within the climatic limits 
+c Determines the values of the climatic indices are within the climatic limits
 
       do 100 ip=1,npft
          do 101 iv=1,nclin
@@ -2899,7 +2899,7 @@ c     subroutine snow masks precip to account for effects of snow
       real tsnow,km,snowpack,snowmelt,newsnow,drain
       real dmelt(365),sum1,sum2,maxdepth
       parameter(tsnow=-1.,km=0.7)
-      
+
       snowpack = 0.0
       maxdepth = 0.0
 
@@ -2908,7 +2908,7 @@ c     subroutine snow masks precip to account for effects of snow
        sum2=0.
 
        do day=1,365
-   
+
         drain = dprecin(day) / (365./12.)
 
 c       Calculate snow melt and new snow for today
@@ -2922,13 +2922,13 @@ c       Calculate snow melt and new snow for today
 
 c       Reduce snowmelt if greater than total snow remaining
         if (snowmelt.gt.snowpack) snowmelt = snowpack
-    
+
 c       Update snowpack store
         snowpack = snowpack + newsnow - snowmelt
         if (snowpack.gt.maxdepth) maxdepth=snowpack
 
 c       Calculate effective water supply (as daily values in mm/day)
-        dprec(day) = drain - newsnow 
+        dprec(day) = drain - newsnow
         dmelt(day) = snowmelt
 
         sum1=sum1+dprec(day)+dmelt(day)
@@ -2941,7 +2941,7 @@ c       Calculate effective water supply (as daily values in mm/day)
       end
 c******************************************************************************
 c      Calculates insolation and PET for each month
- 
+
        subroutine  ppeett
      > (lat,dtemp,dclou,dpet,temp,sun,dayl,rad0,ddayl,radanom)
 
@@ -2959,14 +2959,14 @@ c      Calculates insolation and PET for each month
        parameter(b=0.2,radup=107.,qoo=1360.,d=0.5,c=0.25)
        parameter(albedo=0.17)
 
-       data (midday(month),month=1,12) 
+       data (midday(month),month=1,12)
      *   / 16,44,75,105,136,166,197,228,258,289,319,350 /
-       data (daysinmonth(month),month=1,12) 
+       data (daysinmonth(month),month=1,12)
      *   / 31,28,31,30,31,30,31,31,30,31,30,31          /
 
        pie = 4.*atan(1.)
        dip = pie/180.
-    
+
 c      Daily loop
        day=0
        rad0=0.
@@ -2975,16 +2975,16 @@ c      Daily loop
        day=day+1
 
 c      Find psi and l for this temperature from lookup table
-c      psychrometer constant (pa/oc), latent heat lamba (mj/kg) 
+c      psychrometer constant (pa/oc), latent heat lamba (mj/kg)
        call table(dtemp(day),psi,l)
-    
-c      Calculation of longwave radiation       
+
+c      Calculation of longwave radiation
        rl = (b + (1-b)*(dclou(day)/100.))*(radup- dtemp(day))
 
 c      Since changes in radiation (short or long) will mainly be due
 c      to changes in cloudiness, apply the (short wave) anomaly here too.
 c      Per B. Smith 1998
-       
+
        rl=rl*radanom(month)
 
 c      c=0.29*cos(lat) to emphasize the effect of clouds at high latitude
@@ -3000,7 +3000,7 @@ c      Calculation of short wave radiation
        cla =  cos(lat*dip)*cos(a)
        sla =  sin(lat*dip)*sin(a)
        u = rs*sla - rl
-       v = rs*cla      
+       v = rs*cla
 
 c      Check for polar day and polar night
        if(u.ge.v)then
@@ -3013,11 +3013,11 @@ c      polar night:
 c      normal day and night: (find ho the time of dawn)
        ho =  acos(-u/v)
        endif
-     
+
 c      Equations for demand function
        sat=(2.5*10**6.*exp((17.27*dtemp(day))/(237.3+dtemp(day))))
      *          /((237.3+dtemp(day))**2.)
-c      Multiply l by e6 to convert from mj/kg to j/kg 
+c      Multiply l by e6 to convert from mj/kg to j/kg
        fd = (3600./(l*1e6))*(sat/(sat+psi))
 
 c      Store total daily equilibrium transpiration rate as dpet
@@ -3034,7 +3034,7 @@ c      If at a mid-month day then record mid-month daily sun and dayl
        if(day.eq.midday(month))then
 
 
-c        First record the day length 
+c        First record the day length
          dayl(month)=ddayl(day)
 
 c        Now calculate daily total irradiance (j/m2) & record in sun
@@ -3053,9 +3053,9 @@ c        normal day and night, find hos the time of dawn
          endif
 
 c        Find total insolation for this day, units are j/m2
-         sun(month)= 
+         sun(month)=
      *   2.*(rs*sla*hos+rs*cla*sin(hos))*(3600.*12./pie)
-c        Do not allow negative values for insolation 
+c        Do not allow negative values for insolation
          if(sun(month).le.0.) sun(month)=0.
 
 c        Sum total annual radiation for months with t>0oC (GJs PAR year-1)
@@ -3143,7 +3143,7 @@ c temperature at or below value - set gamma and lambda
 104         continue
 103      continue
       return
-      end   
+      end
 **************************************************************************
       subroutine isotope(Cratio,Ca,temp,Rd,c4month,mgpp,phi,
      >meanC3,meanC4,C3DA,C4DA,gpp)
@@ -3190,10 +3190,10 @@ c      open (unit=2,file='del13C4.out',status='unknown')
        C3DA(m)=0.0
       end if
       end do
-      
+
       meanC3 = wtC3/gpp
       meanC4 = wtC4/gpp
-      
+
 c      write(*,*)meanC3,C3DA(4)
 c      write(2,10)meanC4,(C4DA(m),m=1,12)
 c 10   format(F7.2,12F7.2)
@@ -3204,7 +3204,7 @@ c 10   format(F7.2,12F7.2)
 c----------------------------------------------------------------
 c     This part calculates fractionation for C3 photosynthesis.
       subroutine isoC3(Cratio,Ca,temp,Rd,delC3)
-  
+
       implicit none
       real DeltaA,delC3
       real a,es,a1,b,e,k,f,gamma,Catm
@@ -3219,7 +3219,7 @@ c     define fractionation parameters
        b=27.5
        e= 0.0
        f= 8.0
-      Catm= 0.0 
+      Catm= 0.0
 
       if (Rd.le.0) Rd=0.01
 
@@ -3263,16 +3263,16 @@ c     This part calculates fractionation for C4 photosynthesis.
 c       phi= 0.2
 
       b4=(26.19-(9483/(273.2+temp)))
- 
+
       DeltaA=a*(1-(Cratio)+0.0125)+0.0375*(es+a1)+
      >       (b4+(b3-es-a1)*phi)*((Cratio)-0.05)
 
       delC4 = DeltaA
-      
+
       return
       end
 c--------------------------------------------------------------------
-c     This subroutine is for calculating the phi variable used in 
+c     This subroutine is for calculating the phi variable used in
 c     C4 photosynethsis isotope fractionation calculations
 
       subroutine calcphi(gpp,phi)
@@ -3300,7 +3300,7 @@ c     which compensates for amplitude and seasonal variation in GPP.
 
       do m=1,12
        normgpp(m)=gpp(m)/meangpp
-      end do 
+      end do
 
       snormavg(1)=(normgpp(1)+normgpp(2)+normgpp(3))/3.0
       snormavg(2)=(normgpp(4)+normgpp(5)+normgpp(6))/3.0
@@ -3347,7 +3347,7 @@ c     scenarios of phi.
 c---------------------------------------------------------------------------
 c
 c     This subroutine models heterotrophic respiration of litter and soíl
-c     organic carbon in both a fast and a slow pool.  It assumes equilibrium 
+c     organic carbon in both a fast and a slow pool.  It assumes equilibrium
 c     and so decays all of a given year's NPP.  The 13C composition of respired
 c     CO2 is also modelled.  Models are based on the work of Foley, Lloyd and
 c     Taylor, and Sitch.
@@ -3366,14 +3366,14 @@ c     Taylor, and Sitch.
       real Rten,mfact,nppann,isoveg,isoatm
       real isolit(12),isofst(12),isoslo(12),isoflux(12)
       integer m,pft
-      
+
       real meanKlit,meanKsoil
 
       parameter(isoatm=-8.0)
-     
+
 c     P is pool sizes for partitioning, R is respired CO2
 
-c     the soil temp subroutine must have been called by now 
+c     the soil temp subroutine must have been called by now
 
 c     partition annual npp into pools according to Foley strategy
 
@@ -3406,8 +3406,8 @@ c     Litter needs to decay according to a basic temp and moist function.
 c     Soil decay can be calculated according to temp. response of
 c     Lloyd and moisture of Foley with a turnover time built into the Rten
 
-c     Two ways to decay NPP, one based on surface temp and AET for litter 
-c     (Foley).  The other is for soil decay and is based on soil 
+c     Two ways to decay NPP, one based on surface temp and AET for litter
+c     (Foley).  The other is for soil decay and is based on soil
 c     temperature and moisture.
 
       Rten=1.0
@@ -3426,7 +3426,7 @@ c     temperature and moisture.
        Kfstsum=Kfstsum+kfst(m)
 
        Kslo(m)=mfact*Rten*
-     >  EXP(308.56*((1/56.02)-(1/(tsoil(m)+273.-227.13)))) 
+     >  EXP(308.56*((1/56.02)-(1/(tsoil(m)+273.-227.13))))
        Kslosum=Kslosum+Kslo(m)
       end do
 
@@ -3463,12 +3463,12 @@ c     Since 13C is enriched in organic matter over time add factors
       end if
       return
 
-      end 
+      end
 
 c-----------------------------------------------------------------
-c     This subroutine calculates monthly mean soil temperature 
+c     This subroutine calculates monthly mean soil temperature
 c     based on monthly mean air temperature assuming a thermal
-c     conductivity of the soil and a time lag between soil and air 
+c     conductivity of the soil and a time lag between soil and air
 c     temperatures. Based on work by S. Sitch.
 
       subroutine soiltemp(tair,soiltext,tsoil)
@@ -3481,9 +3481,9 @@ c     temperatures. Based on work by S. Sitch.
       real sumtemp,meantemp
       integer m,i
 
-      pie = 4.*ATAN(1.)    
+      pie = 4.*ATAN(1.)
 
-      data (therm(i),i=1,9)  
+      data (therm(i),i=1,9)
      >/ 8.0,4.5,1.0,5.25,4.5,2.75,1.0,1.0,8.0 / !check value for soil 8
 
       sumtemp=0.
@@ -3501,12 +3501,12 @@ c     calculate mean annual air temperature
        sumtemp=sumtemp+tair(m)
       end do
       meantemp=sumtemp/12.
-      
+
 c     calculate soil temperature
- 
+
       tsoil(1) = (1.-amp)*meantemp+amp*(tair(12)+
      >(1.-lag)*(tair(1)-tair(12)))
-     
+
       do m=2,12
        tsoil(m) = (1.-amp)*meantemp+amp*(tair(m-1)+
      > (1.-lag)*(tair(m)-tair(m-1)))
@@ -3549,7 +3549,7 @@ c     annual NPP so that firedays are reduced linearly to 0 below 1000gC/m2
       dryday   = 100.0
 
       do day=1,365
-    
+
        if (wet(day).lt.threshold(pft)) then
         burn(day)=1.0
        else if (wet(day).gt.threshold(pft)+0.05) then
