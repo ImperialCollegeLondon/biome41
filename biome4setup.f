@@ -106,7 +106,7 @@ c
 c------------------------------------------------------------------------
 c     Program code begins here:
 
-      subroutine biome4setup(infile,outfile,inputid,outputid,limits,
+      subroutine biome4setup(infile,outfile,co2,inputid,outputid,limits,
      >globalparms,noutvars,list,location,vartypes)
 
       implicit none
@@ -158,15 +158,12 @@ c-------------------------------------
      > /nf_byte,nf_char,nf_short,nf_int,nf_float,nf_double/
 
 c-------------------------------------
+      print*,"Using CO2 ppm: ",co2
+
 c     Read in the user run options
 
       optionsfile='biome4options'
       open(99,file=optionsfile,status='old')
-
-      read(99,*)inputpath
-      read(99,*)outputpath
-
-      read(99,*) co2
 
       read(99,*) globalparms(4) !diagnostic mode option
 
@@ -217,7 +214,7 @@ c     Read the output attributes file
 c-------------------------------------
 c     Open the netCDF input file
 
-      print*,'opening input file', infile
+      print*,'Opening input file: ', infile
 
       status=nf_open(infile, nf_nowrite,inputid)
       if (status.ne.nf_noerr) call handle_err(status)
@@ -243,7 +240,7 @@ c      stop
 c-------------------------------------
 c     Create the output file
 
-      print*,'creating output file',outfile
+      print*,'Creating output file: ',outfile
 
       status=nf_create(outfile,nf_clobber,outputid)
       if (status.ne.nf_noerr) call handle_err(status)

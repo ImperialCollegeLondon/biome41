@@ -44,6 +44,7 @@ c------------------------------------------------------------------------
       character(120) outfile
       integer stderr
       integer status
+      real co2
 
       integer limits(4)
       integer inputid,outputid
@@ -59,10 +60,11 @@ c------------------------------------------------------------------------
       !   2nd value = if option has value (boolean)
       !   3rd value = short option name (single character), same as in getopt()
       ! option_s is not needed if you just use short options
-      type(option_s) :: opts(3)
+      type(option_s) :: opts(4)
       opts(1) = option_s("help",   .false.,  "h")
       opts(2) = option_s("infile",   .true.,  "i")
       opts(3) = option_s("outfile",    .true.,  "o")
+      opts(4) = option_s("co2",    .true.,  "c")
 
       stderr = 0
 
@@ -87,10 +89,17 @@ c------------------------------------------------------------------------
                   exit
             case("i") ! option --infile
                   infile = trim(optarg)
-                  print*,"using input file: ",infile
+                  ! print*,"using input file: ",infile
             case("o") ! option --outfile
                   outfile = trim(optarg)
-                  print*,"using output file: ",outfile
+                  ! print*,"using output file: ",outfile
+            case("c") ! option --co2
+                  if (isnum(trim(optarg)) > 0) then ! Check for number in "optarg"
+                      read(optarg,*) co2 ! Convert character string to double precision
+                  else
+                      write(stderr,*) "ERROR: -c/--co2 is not a number."
+                      stop
+                  end if
             case("h") ! help output
                   print*,"Help"
                   stop
@@ -107,7 +116,7 @@ c------------------------------------------------------------------------
       
 c-------------------------------------
 
-      call biome4setup(infile,outfile,inputid,outputid,limits,
+      call biome4setup(infile,outfile,co2,inputid,outputid,limits,
      >globalparms,noutvars,list,location,vartypes)
 
       call biome4driver(inputid,outputid,limits,
