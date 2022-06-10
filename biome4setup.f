@@ -106,7 +106,7 @@ c
 c------------------------------------------------------------------------
 c     Program code begins here:
 
-      subroutine biome4setup(inputid,outputid,limits,
+      subroutine biome4setup(infile,outfile,inputid,outputid,limits,
      >globalparms,noutvars,list,location,vartypes)
 
       implicit none
@@ -122,8 +122,8 @@ c     variables
       character*60 dim_longname,var_longname
       character*65 inputpath,outputpath
       character*80 optionsfile,attributefile
-      character*80 outfile,output_title,input_title
-      character*120 header
+      character*80 output_title,input_title
+      character*120 header,infile,outfile
 
       integer lonsize,latsize
       integer inputid,outputid,status
@@ -217,13 +217,12 @@ c     Read the output attributes file
 c-------------------------------------
 c     Open the netCDF input file
 
-      print*,'opening input file'
+      print*,'opening input file', infile
 
-      status=nf_open(inputpath(1:length(inputpath))//'inputdata.nc',
-     >                nf_nowrite,inputid)
+      status=nf_open(infile, nf_nowrite,inputid)
       if (status.ne.nf_noerr) call handle_err(status)
 
-      input_title=inputpath(1:length(inputpath))//'inputdata.nc'
+      input_title=infile
 
 c-------------------
 c      get the boundaries of the box
@@ -243,9 +242,6 @@ c      stop
 
 c-------------------------------------
 c     Create the output file
-
-      outname='biome4out.nc'
-      outfile=outputpath(1:length(outputpath))//outname
 
       print*,'creating output file',outfile
 

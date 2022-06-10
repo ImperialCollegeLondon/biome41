@@ -40,7 +40,8 @@ c------------------------------------------------------------------------
       include 'netcdf.inc'
 
       ! Local declarations for command line arguments
-      character(120) :: infile, outfile
+      character(120) infile
+      character(120) outfile
       integer stderr
       integer status
 
@@ -84,10 +85,10 @@ c------------------------------------------------------------------------
             select case(getopt("i:o:h", opts))
             case(char(0))
                   exit
-            case("i") ! option --input
+            case("i") ! option --infile
                   infile = trim(optarg)
                   print*,"using input file: ",infile
-            case("o") ! option --output
+            case("o") ! option --outfile
                   outfile = trim(optarg)
                   print*,"using output file: ",outfile
             case("h") ! help output
@@ -106,7 +107,7 @@ c------------------------------------------------------------------------
       
 c-------------------------------------
 
-      call biome4setup(inputid,outputid,limits,
+      call biome4setup(infile,outfile,inputid,outputid,limits,
      >globalparms,noutvars,list,location,vartypes)
 
       call biome4driver(inputid,outputid,limits,
