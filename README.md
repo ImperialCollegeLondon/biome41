@@ -6,15 +6,37 @@ Kaplan with the following aims:
 * ensure it works with more recent releases of the netcdf library,
 * maintain an updated Makefile for use with gfortran
 * clear out some of the compilation warnings (mostly the trivial whitespace ones at the moment!)
-* potentially add a more user friendly command line interface via [`f90getopt`](https://github.com/haniibrahim/f90getopt)
+* adding a more user friendly command line interface via [`f90getopt`](https://github.com/haniibrahim/f90getopt)
+
+## New interface
+
+The program now sets the input file, output file, global settings and CO2 
+concentration from the command line
+
+    Usage: biome4 -i input.nc -o output.nc \
+                  -s settings.txt -c 410 
+    Options:
+      -h  --help      Print this help screen
+    Required arguments:
+      -i  --input     Input data file
+      -o  --output    Output data file
+      -s  --settings  Global settings file
+      -c  --co2       CO2 (ppm)
 
 ## Original use
 
-The `biome4` executable expects to find _two_ files in the directory from which it is run:
+The `biome4` executable expected to find _two_ files in the directory from 
+which it was run:
 
-* biome4outvars sets which variables are saved in the outputs
+* `biome4outvars` set the netcdf naming and formatting for possible output
+  variables.
 
-* biome4options sets a range of things including the CO2 concentration, something again about which variables are outputted but most critically the first two lines are the paths to the input data and output location. The input data _has_ to be at that input path and has to be called inputdata.nc. 
+* `biome4options` set some fairly static options, such as the output variable
+  choices, but also set things that would change with _every_ run, including:
+     
+    * the CO2 concentration
+    * the path to the input data (which then _had_ to be called `inputdata.nc`
+    * the output directory
 
 So if you had a directory with the following structure.
 
@@ -23,25 +45,21 @@ So if you had a directory with the following structure.
     /rds/general/home/dorme/biome4_2012/biome4options
     /rds/general/home/dorme/biome4_2012/out/
 
-The first two lines of biome4options should then be:
+The first three lines of biome4options could then be:
 
     /rds/general/home/dorme/biome4_2012/
     /rds/general/home/dorme/biome4_2012/out/
-
+    400
+ 
 And you could then:
 
     cd /rds/general/home/dorme/biome4_2012/
     /path/to/the/compile/biome4
     
-All of the options at run time are then read from those two files.
+All of the options at run time were then read from those two files.
 
-## Proposed UI
-
-The vague plan is to try and get `biome4` to work with command line arguments, along the lines of:
-
-    biome4 --input myinputfile.nc --output path/outfile.nc --options biome4options --outvars biome4outvars
-
-It is conceivable that those last two options might be merged into a single config file?
+This is really inflexible - for multiple runs, all the input files would have
+to have the same file name and each run would need a separate option file.
 
 ## Other thoughts
 
