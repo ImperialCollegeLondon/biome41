@@ -42,3 +42,9 @@ The vague plan is to try and get `biome4` to work with command line arguments, a
     biome4 --input myinputfile.nc --output path/outfile.nc --options biome4options --outvars biome4outvars
 
 It is conceivable that those last two options might be merged into a single config file?
+
+## Other thoughts
+
+* The latitude and longitude limits are either set as a window (which subsets the provided data) or
+  fixed at -180:180 and -60:90. This doesn't work when the input file itself is a subset, so maybe
+  read those dimensions from the input file.
