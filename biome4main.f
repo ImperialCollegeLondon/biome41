@@ -39,6 +39,9 @@ c------------------------------------------------------------------------
       implicit none
       include 'netcdf.inc'
 
+      ! Local declarations for command line arguments
+      character(120) :: infile, outfile
+      integer stderr
       integer status
 
       integer limits(4)
@@ -48,6 +51,59 @@ c------------------------------------------------------------------------
 
       real globalparms(4)
 
+      ! Declaration of longopts only (optional)
+      ! ----------------------------------
+      ! option_s derived type:
+      !   1st value = long option name (character array, max. 80)
+      !   2nd value = if option has value (boolean)
+      !   3rd value = short option name (single character), same as in getopt()
+      ! option_s is not needed if you just use short options
+      type(option_s) :: opts(3)
+      opts(1) = option_s("help",   .false.,  "h")
+      opts(2) = option_s("infile",   .true.,  "i")
+      opts(3) = option_s("outfile",    .true.,  "o")
+
+      stderr = 0
+
+      ! If no options were committed
+      ! ----------------------------
+      if (command_argument_count() .eq. 0) then
+          write(stderr,*) "ERROR:  Use options -h or --help for details"
+          stop
+      end if
+
+      ! Processing options
+      ! ------------------------
+      ! Process short options one by one and long options if specified in option_s
+      !
+      ! getopt(optstr, longopt):
+      !  - optstr = character of short option character without a space
+      !             ":" after a character says that this option requires a value
+      !  - opts   = longopts, if specified in option_s (optional)
+      do
+            select case(getopt("i:o:h", opts))
+            case(char(0))
+                  exit
+            case("i") ! option --input
+                  infile = trim(optarg)
+                  print*,"using input file: ",infile
+            case("o") ! option --output
+                  outfile = trim(optarg)
+                  print*,"using output file: ",outfile
+            case("h") ! help output
+                  print*,"Help"
+                  stop
+                  !write(*, "(5(A/),/,2(A/))")&
+                  !      "Usage: biome4 [options] …",&
+                  !      "Options:",&
+                  !      "  -h    --help      Print this help screen",&
+                  !      "  -i    --input     Input data file",&
+                  !      "  -o    --output    Output data file",&
+                  !      "Examples:",&
+                  !      "  biome4 -i data.nc -o out.nc",&
+            end select
+      end do
+      
 c-------------------------------------
 
       call biome4setup(inputid,outputid,limits,
