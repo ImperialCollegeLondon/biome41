@@ -9,9 +9,9 @@
 ## file 'netcdf.h', the name of the netcdf library file, and the
 ## path to that library file.
 ################################################################
-NETCDFINCDIR = /opt/netcdf/include
-NETCDFLIB    = -lnetcdf
-NETCDFLIBDIR = /opt/netcdf/lib
+NETCDFINCDIR = /apps/netcdf/4.4.4-fortran/include/
+NETCDFLIB    = -lnetcdff
+NETCDFLIBDIR = /apps/netcdf/4.4.4-fortran/lib/
 
 INCDIRS = -I$(NETCDFINCDIR)
 LIBDIRS = -L$(NETCDFLIBDIR)
@@ -22,7 +22,7 @@ LIBS    = $(NETCDFLIB)
 ## the GNU g77 fortran compiler, change value for compile in the
 ## following line. 
 ################################################################
-FC = g77
+FC = gfortran
 
 ####################
 ## Can add a -g here
@@ -35,14 +35,14 @@ FC = g77
 
 MODELOBJS = biome4main.o biome4setup.o biome4driver.o biome4.o
 
-FFLAGS = $(OTHERFLAGS) -fno-silent -Wall $(INCDIRS)
+FFLAGS = $(OTHERFLAGS) -Wall $(INCDIRS)
 
 ################################################################
 
 all::	model
 
 model:	$(MODELOBJS)
-	$(FC) -o biome4 $(MODELOBJS) $(INCDIRS) $(LIBDIRS) $(LIBS)
+	$(FC) f90getopt.F90 -o biome4 $(MODELOBJS) $(INCDIRS) $(LIBDIRS) $(LIBS)
 
 clean::	
 	-rm *.o
