@@ -40,8 +40,7 @@ c------------------------------------------------------------------------
       include 'netcdf.inc'
 
       ! Local declarations for command line arguments
-      character(120) infile
-      character(120) outfile
+      character(120) infile,outfile,settings
       integer stderr
       integer status
       real co2
@@ -60,11 +59,12 @@ c------------------------------------------------------------------------
       !   2nd value = if option has value (boolean)
       !   3rd value = short option name (single character), same as in getopt()
       ! option_s is not needed if you just use short options
-      type(option_s) :: opts(4)
-      opts(1) = option_s("help",   .false.,  "h")
-      opts(2) = option_s("infile",   .true.,  "i")
-      opts(3) = option_s("outfile",    .true.,  "o")
-      opts(4) = option_s("co2",    .true.,  "c")
+      type(option_s) :: opts(5)
+      opts(1) = option_s("help",    .false.,  "h")
+      opts(2) = option_s("infile",  .true.,  "i")
+      opts(3) = option_s("outfile", .true.,  "o")
+      opts(4) = option_s("co2",     .true.,  "c")
+      opts(5) = option_s("settings",.true.,  "s")
 
       stderr = 0
 
@@ -93,6 +93,9 @@ c------------------------------------------------------------------------
             case("o") ! option --outfile
                   outfile = trim(optarg)
                   ! print*,"using output file: ",outfile
+            case("s") ! option --settings
+                  settings = trim(optarg)
+                  ! print*,"using output file: ",outfile
             case("c") ! option --co2
                   if (isnum(trim(optarg)) > 0) then ! Check for number in "optarg"
                       read(optarg,*) co2 ! Convert character string to double precision
@@ -116,8 +119,9 @@ c------------------------------------------------------------------------
       
 c-------------------------------------
 
-      call biome4setup(infile,outfile,co2,inputid,outputid,limits,
-     >globalparms,noutvars,list,location,vartypes)
+      call biome4setup(infile,outfile,settings,co2,
+     >inputid,outputid,limits,globalparms,noutvars,
+     >list,location,vartypes)
 
       call biome4driver(inputid,outputid,limits,
      >globalparms,noutvars,list,location,vartypes)

@@ -106,7 +106,8 @@ c
 c------------------------------------------------------------------------
 c     Program code begins here:
 
-      subroutine biome4setup(infile,outfile,co2,inputid,outputid,limits,
+      subroutine biome4setup(infile,outfile,settings,co2,
+     >inputid,outputid,limits,
      >globalparms,noutvars,list,location,vartypes)
 
       implicit none
@@ -121,9 +122,8 @@ c     variables
       character*60 var_longnames(100)
       character*60 dim_longname,var_longname
       character*65 inputpath,outputpath
-      character*80 optionsfile,attributefile
       character*80 output_title,input_title
-      character*120 header,infile,outfile
+      character*120 header,infile,outfile,settings
 
       integer lonsize,latsize
       integer inputid,outputid,status
@@ -162,8 +162,8 @@ c-------------------------------------
 
 c     Read in the user run options
 
-      optionsfile='biome4options'
-      open(99,file=optionsfile,status='old')
+      print*,'Reading global settings file: ',settings
+      open(99,file=settings,status='old')
 
       read(99,*) globalparms(4) !diagnostic mode option
 
@@ -192,18 +192,14 @@ c     Read in the user run options
        read(99,*) lonlatbox(4)
       end if
 
-c     Read the output attributes file
-      print*,'reading attributes file'
-      attributefile='biome4outvars'
-      open(97,file=attributefile,status='old')
-
-      do i=1,17
-       read(97,*)header
+c     Read the output variable definitions
+      do i=1,19
+       read(99,*)header
       end do
 
       i=0
 5     i=i+1
-       read(97,*,end=10)varnames(i),vardims(i),
+       read(99,*,end=10)varnames(i),vardims(i),
      >           dimids(i,1),dimids(i,2),dimids(i,3),dimids(i,4),
      >           num,var_longnames(i),var_units(i),location(i)
        vartypes(i)=typenum(num)

@@ -1,0 +1,46 @@
+0	!Diagnostic point mode option, 1=on, anything else=off
+1	!list of variables id numbers to output, in I3 format, must end with 99
+2  
+3
+4
+5
+6
+7
+8
+9
+99
+5	!window option. Use (2) for world except Antarctica, use (5) to choose a window below.   
+-71	!min lon 
+-70	!max lon
+-2	!min lat
+0	!max lat
+C-------------------------------------------------------------------------------------------------------------------------
+C
+C       biome4_variables and corresponding values for producing NetCDF
+C        
+C       dimension = 1 --> longitude
+C		  = 2 --> latitude
+C                 = 3 --> time
+C                 = 4 --> soil_layer
+C
+C 	types	1 = nf_byte
+C		2 = nf_char
+C		3 = nf_short
+C		4 = nf_int
+C		5 = nf_float
+C		6 = nf_double
+C
+C+---------+---------+---------+-------+-----------------------------------------------+-----------------------+---------+
+C+ varnames  vardims	dimids	typenum		var_longnames				var_units		location
+C+---------+---------+---------+-------+-----------------------------------------------+-----------------------+---------+
+'biome'		2	1 2 0 0	3	'biome'						'biome'			1
+'npp'		2	1 2 0 0	5	'annual net primary production'			'gC/m^2'		3
+'decomp'	2	1 2 0 0	5	'decomposition scalar'				'index'			451
+'LAI'           2	1 2 0 0	5	'lai'			                        'gC/m^2'		2
+'runoff'	2	1 2 0 0	5	'total annual runoff'				'cm'			11
+'mo_runoff'	3	1 2 3 0 5	'total monthly runoff'	                        'cm'     		185
+'tcm'		2	1 2 0 0 5	'coldest month'					'degree'		452
+'gdd0'		2	1 2 0 0 5	'gdd0'						'index'			453
+'gdd5'		2	1 2 0 0 5	'gdd5'						'index'			454
+'aaet'          2       1 2 0 0 3       'annual aet'                                    'index'                 460
+'apet'          2       1 2 0 0 3       'annual pet'                                    'index'                 461
