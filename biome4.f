@@ -247,7 +247,7 @@ c--------------------------------------------------------------------------
      >    'GDD5 is:',gdd5,' and total annual precip is:',tprec,' mm.'
        write(*,'(A,F8.1,A)')
      >    'Maximum snowdepth is:',maxdepth*10.,' mm.'
-       write(*,'(A,2F7.2,3F7.1,)')
+       write(*,'(A,2F7.2,3F7.1)')
      >    'The current soil parameters are:',soil
        write(*,'(A,$)')
      >    'Enter new soil parameters? '
