@@ -33,6 +33,8 @@ c
 c------------------------------------------------------------------------
 
       program biome4main
+      
+      use f90getopt
 
       implicit none
       include 'netcdf.inc'
