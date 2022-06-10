@@ -1,0 +1,20 @@
+'/Net/Groups/AG_Harrison_Prentice/clima/PMIP/complete_6k/bmrc/'
+'/Net/Groups/AG_Harrison_Prentice/clima/PMIP/b41_6out/bmrc/'
+270	!CO2 level
+0	!Diagnostic point mode option, 1=on, anything else=off
+1	!list of variables id numbers to output, in I3 format, must end with 99
+2  
+3
+4
+5
+6
+7
+8
+9
+99
+2	!window option. Use (2) for world except Antarctica, use (5) to choose a window below.   
+-71	!min lon 
+-70	!max lon
+-2	!min lat
+0	!max lat
+

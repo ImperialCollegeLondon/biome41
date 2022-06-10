@@ -1,0 +1,6 @@
+# Ignore compiled binary and object files
+biome4
+*.o
+
+# Ignore netcdf files
+*.nc

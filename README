@@ -1,0 +1,153 @@
+README, BIOME4, first beta release, 22 October 1999
+
+Jed O. Kaplan
+I. Colin Prentice
+Max-Planck-Institute for Biogeochemistry
+Postfach 10 01 64
+D-07745 Jena
+Germany
+
+jed.kaplan@bgc-jena.mpg.de
+cprentic@bgc-jena.mpg.de
+
+INTRODUCTION
+
+This document describes the distribution, installation, and execution of the 
+first general release of the global biosphere model BIOME4, an interactive,
+equilibrium coupled biogeography and biogeochemistry model.
+
+DISTRIBUTION
+
+This distribution of BIOME4 is provided completete with setup and driver
+programs which allow immediate, stand-alone operation of the model.  The
+distribution contains the complete model source code, driver software, and a
+sample driver dataset containing a global, long-term average climatology and 
+general soils dataset.  With these data, the BIOME4 model can simulate global
+biogeography, the result a being potential natural vegetation, influenced by
+climate, soils, and atmospheric CO2 concentration.
+
+-----------------------
+
+The distribution contains the following files:
+
+README		this README file
+COPYING		the software license file
+
+biome4.f	the BIOME4 model source code.
+biome4main.f	the shell which runs the setup and driver subroutines.
+biome4setup.f	the setup subroutine for model initialization.
+biome4driver.f	the driver subroutine for the BIOME4 model.
+
+Makefile	a make file for building the model executable
+biome4outvars	an ASCII text file with parameters for the output variables
+biome4options	an ASCII text file for specifying run-time options
+
+inputdata.nc	a netCDF file containing the long-term-mean driving data
+
+-----------------------
+
+The BIOME4 model may be customized to run with any type of driver software.  A 
+description of the input values the model program requires are included in the 
+source code.
+
+If you would like to use the driver programs and data here you will also need to
+have the 3.x version of the netCDF libraries installed.
+
+from the netCDF website:
+
+     NetCDF (network Common Data Form) is an interface for array-oriented 
+     data access and a library that provides an implementation of the 
+     interface. The netCDF library also defines a machine-independent 
+     format for representing scientific data. Together, the interface, 
+     library, and format support the creation, access, and sharing of 
+     scientific data. The netCDF software was developed at the Unidata 
+     Program Center in Boulder, Colorado. The freely available source can 
+     be obtained as a compressed tar file or a zip file from Unidata or from 
+     other mirror sites. 
+
+http://www.unidata.ucar.edu/packages/netcdf/index.html
+
+INSTALLATION
+
+1. Be sure you have installed the version 3.x netCDF libraries.
+
+2. Decompress and un-tar the BIOME4 distribution.  To do this you will need to
+   have the GNU gzip software (free) or the bzip2 software (better compression, 
+   also free at http://sourceware.cygnus.com/bzip2/index.html).
+
+3. Ensure that all of the files in the distribution reside in the same directory
+   (exception, the inputdata.nc file may reside in an arbitrary directory).
+
+4. Edit the makefile.
+   You will likely need to change the path names to your netCDF libraries and
+   include files, and the command for your FORTRAN77 compiler.
+
+5. Type make.
+
+6. The executable program, called 'biome4', is ready for use.
+
+EXECUTION
+
+To run the BIOME4 model with the provided driver programs and data, the user
+must configure a runtime options file.  A sample runtime options file is
+provided in the distribution (biome4options).  The file contains information
+about the source and destination directories of the input and output files that
+BIOME4 will use.  It also contains flags which set the global concentration of
+atmospheric CO2 used by the model.  The operator may also select here the
+variables to be output, and a geographic window in which to run the model.
+
+The runtime options file is in ASCII text and commented where appropriate.  File
+path names must be enclosed in single quotes ' '.
+
+The runtime options file must be called 'biome4options' and reside in the same
+directory as the model execuatble program 'biome4'.
+
+Once the options file is configured to the wishes of the operator, simply enter:
+
+biome4
+
+at the command prompt.  A dot and percentage ticker will keep track of the 
+progress of the model.
+
+All model output will be directed to the file 'biome4output.nc' in the path
+specified on the second line of the options file.
+
+NOTE:  The model will overwrite an existing output file without questioning the
+operator - change the name or move your output file if you wish to save
+successive runs.
+
+A variety of tools are available for viewing, extracting and dumping data from
+netCDF output files.  I personally recommend the tools 'ncview' and 'GMT' for 
+data visualization and mapping.  See the Unidata home page for more information.
+
+PROBLEMS, QUESTIONS, AND COMMENT
+
+As this is a beta version of the model, there may be certain configurations of
+hardware, operating systems, and compilers that result in compiler errors,
+erratic output, or incomprehensible results.  Please note that this software is
+distributed without warranty under the terms of the GNU public license.
+
+However, we consider the version 'frozen' and the biogeography (biomes) output 
+produced by the model to be definitive.  All other output should be considered 
+equivocal.
+
+We would very much appreciate comments, questions and suggestions for future
+versions of the model.
+
+CAVEAT
+
+This model represents unpublished scientific effort.  While the authors are
+making the best effort to present the results of BIOME4 in a internationally
+refereed publication, this may yet take some time.  In the interest of currency
+we are freely distributing the model source code now and under the GNU general 
+public license.  Please read the license, in the file 'COPYING' and respect the
+intellectual property rights of the authors.  If you would like to publish
+results generated by BIOME4, please contact one of the authors listed below
+first.
+
+Jena, 22 October 1999
+Jed O. Kaplan
+I. Colin Prentice
+
+jkaplan@bgc-jena.mpg.de
+cprentic@bgc-jena.mpg.de
