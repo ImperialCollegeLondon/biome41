@@ -111,16 +111,16 @@ c------------------------------------------------------------------------
                       stop
                   end if
             case("h") ! help output
-                  print*,"Help"
+                  print*, "Usage: biome4 -i input.nc -o output.nc \"
+                  print*, "              -s settings.txt -c 410 "
+                  print*, "Options:"
+                  print*, "  -h  --help      Print this help screen"
+                  print*, "Required arguments:"
+                  print*, "  -i  --input     Input data file"
+                  print*, "  -o  --output    Output data file"
+                  print*, "  -s  --settings  Global settings file"
+                  print*, "  -c  --co2       CO2 (ppm)"
                   stop
-                  !write(*, "(5(A/),/,2(A/))")&
-                  !      "Usage: biome4 [options] …",&
-                  !      "Options:",&
-                  !      "  -h    --help      Print this help screen",&
-                  !      "  -i    --input     Input data file",&
-                  !      "  -o    --output    Output data file",&
-                  !      "Examples:",&
-                  !      "  biome4 -i data.nc -o out.nc",&
             end select
       end do
       
