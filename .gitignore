@@ -1,6 +1,7 @@
 # Ignore compiled binary and object files
 biome4
 *.o
+*.mod
 
 # Ignore netcdf files
 *.nc

@@ -20,7 +20,7 @@ LIBS    = $(NETCDFLIB)
 ################################################################
 ## If you want to use another compiler instead of the
 ## the GNU g77 fortran compiler, change value for compile in the
-## following line. 
+## following line.
 ################################################################
 FC = gfortran
 
@@ -42,7 +42,8 @@ FFLAGS = $(OTHERFLAGS) -Wall $(INCDIRS)
 all::	model
 
 model:	$(MODELOBJS)
+	$(FC) -c f90getopt.F90
 	$(FC) f90getopt.F90 -o biome4 $(MODELOBJS) $(INCDIRS) $(LIBDIRS) $(LIBS)
 
-clean::	
+clean::
 	-rm *.o
