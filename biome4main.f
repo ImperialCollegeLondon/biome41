@@ -44,7 +44,9 @@ c------------------------------------------------------------------------
       integer stderr
       integer status
       real co2
-
+      
+      logical infile_not_set,outfile_not_set
+      logical settings_not_set,co2_not_set
       integer limits(4)
       integer inputid,outputid
       integer vartypes(100),location(100),list(100)
@@ -67,6 +69,10 @@ c------------------------------------------------------------------------
       opts(5) = option_s("settings",.true.,  "s")
 
       stderr = 0
+      infile_not_set = .true.
+      outfile_not_set = .true.
+      settings_not_set = .true.
+      co2_not_set = .true.
 
       ! If no options were committed
       ! ----------------------------
@@ -89,16 +95,17 @@ c------------------------------------------------------------------------
                   exit
             case("i") ! option --infile
                   infile = trim(optarg)
-                  ! print*,"using input file: ",infile
+                  infile_not_set = .false.
             case("o") ! option --outfile
                   outfile = trim(optarg)
-                  ! print*,"using output file: ",outfile
+                  outfile_not_set = .false.
             case("s") ! option --settings
                   settings = trim(optarg)
-                  ! print*,"using output file: ",outfile
+                  settings_not_set = .false.
             case("c") ! option --co2
                   if (isnum(trim(optarg)) > 0) then ! Check for number in "optarg"
                       read(optarg,*) co2 ! Convert character string to double precision
+                      co2_not_set = .false.
                   else
                       write(stderr,*) "ERROR: -c/--co2 is not a number."
                       stop
@@ -117,6 +124,13 @@ c------------------------------------------------------------------------
             end select
       end do
       
+      ! Check for missing settings.
+      if (infile_not_set .or. outfile_not_set .or. 
+     >    settings_not_set .or. co2_not_set) then
+           write(stderr,*) "ERROR: missing required settings"
+           stop
+      end if
+
 c-------------------------------------
 
       call biome4setup(infile,outfile,settings,co2,
